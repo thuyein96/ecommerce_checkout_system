@@ -1,0 +1,42 @@
+[
+    {
+      "PromotionCode_id": "PROMO001",
+      "Name": "SAVE20",
+      "Promotion_code_type": "percentage",
+      "Start_date": "2024-01-01",
+      "End_date": "2024-12-31",
+      "Period": 365
+    },
+    {
+      "PromotionCode_id": "PROMO002",
+      "Name": "HOLIDAY50",
+      "Promotion_code_type": "fixed",
+      "Start_date": "2024-11-01",
+      "End_date": "2024-12-31",
+      "Period": 61
+    },
+    {
+      "PromotionCode_id": "PROMO003",
+      "Name": "FREESHIP",
+      "Promotion_code_type": "free_delivery",
+      "Start_date": "2024-06-01",
+      "End_date": "2024-08-31",
+      "Period": 92
+    },
+    {
+      "PromotionCode_id": "PROMO004",
+      "Name": "SUMMER15",
+      "Promotion_code_type": "percentage",
+      "Start_date": "2024-06-15",
+      "End_date": "2024-09-15",
+      "Period": 92
+    },
+    {
+      "PromotionCode_id": "PROMO005",
+      "Name": "WELCOME25",
+      "Promotion_code_type": "fixed",
+      "Start_date": "2024-01-01",
+      "End_date": "2024-12-31",
+      "Period": 365
+    }
+  ]

@@ -1,0 +1,82 @@
+[
+    {
+      "product_id": "P001",
+      "product_name": "iPhone 15 Pro Max",
+      "price": 1199.99,
+      "shop_id": "SHOP001",
+      "image": "https://example.com/images/iphone15promax.jpg",
+      "review": 4.5,
+      "instock_Quantity": 25,
+      "product_category": "Electronics"
+    },
+    {
+      "product_id": "P002",
+      "product_name": "Nike Air Max 270",
+      "price": 150.00,
+      "shop_id": "SHOP002",
+      "image": "https://example.com/images/nikeairmax270.jpg",
+      "review": 4.2,
+      "instock_Quantity": 50,
+      "product_category": "Footwear"
+    },
+    {
+      "product_id": "P003",
+      "product_name": "Samsung 55\" QLED TV",
+      "price": 899.99,
+      "shop_id": "SHOP001",
+      "image": "https://example.com/images/samsung55qled.jpg",
+      "review": 4.7,
+      "instock_Quantity": 15,
+      "product_category": "Electronics"
+    },
+    {
+      "product_id": "P004",
+      "product_name": "Levi's 501 Original Jeans",
+      "price": 89.50,
+      "shop_id": "SHOP003",
+      "image": "https://example.com/images/levis501.jpg",
+      "review": 4.3,
+      "instock_Quantity": 100,
+      "product_category": "Clothing"
+    },
+    {
+      "product_id": "P005",
+      "product_name": "KitchenAid Stand Mixer",
+      "price": 379.99,
+      "shop_id": "SHOP004",
+      "image": "https://example.com/images/kitchenaid_mixer.jpg",
+      "review": 4.8,
+      "instock_Quantity": 30,
+      "product_category": "Home & Kitchen"
+    },
+    {
+      "product_id": "P006",
+      "product_name": "The Great Gatsby Book",
+      "price": 12.99,
+      "shop_id": "SHOP005",
+      "image": "https://example.com/images/great_gatsby.jpg",
+      "review": 4.4,
+      "instock_Quantity": 200,
+      "product_category": "Books"
+    },
+    {
+      "product_id": "P007",
+      "product_name": "Wireless Bluetooth Headphones",
+      "price": 79.99,
+      "shop_id": "SHOP001",
+      "image": "https://example.com/images/bluetooth_headphones.jpg",
+      "review": 4.1,
+      "instock_Quantity": 75,
+      "product_category": "Electronics"
+    },
+    {
+      "product_id": "P008",
+      "product_name": "Organic Green Tea (50 bags)",
+      "price": 24.99,
+      "shop_id": "SHOP006",
+      "image": "https://example.com/images/green_tea.jpg",
+      "review": 4.6,
+      "instock_Quantity": 150,
+      "product_category": "Food & Beverages"
+    }
+]

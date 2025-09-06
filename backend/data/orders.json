@@ -1,0 +1,58 @@
+[
+    {
+      "Order_id": "ORD001",
+      "Cus_id": "C001",
+      "total_price": 1289.98,
+      "coupon": "SAVE20",
+      "total_delivery_fees": 15.99,
+      "loyalty_points": 128
+    },
+    {
+      "Order_id": "ORD002",
+      "Cus_id": "C002",
+      "total_price": 150.00,
+      "coupon": null,
+      "total_delivery_fees": 9.99,
+      "loyalty_points": 15
+    },
+    {
+      "Order_id": "ORD003",
+      "Cus_id": "C003",
+      "total_price": 989.49,
+      "coupon": "FREESHIP",
+      "total_delivery_fees": 0.00,
+      "loyalty_points": 98
+    },
+    {
+      "Order_id": "ORD004",
+      "Cus_id": "C004",
+      "total_price": 102.48,
+      "coupon": "SUMMER15",
+      "total_delivery_fees": 7.99,
+      "loyalty_points": 10
+    },
+    {
+      "Order_id": "ORD005",
+      "Cus_id": "C001",
+      "total_price": 404.98,
+      "coupon": "WELCOME25",
+      "total_delivery_fees": 12.99,
+      "loyalty_points": 40
+    },
+    {
+      "Order_id": "ORD006",
+      "Cus_id": "C005",
+      "total_price": 92.98,
+      "coupon": null,
+      "total_delivery_fees": 5.99,
+      "loyalty_points": 9
+    },
+    {
+      "Order_id": "ORD007",
+      "Cus_id": "C006",
+      "total_price": 79.99,
+      "coupon": "FREESHIP",
+      "total_delivery_fees": 0.00,
+      "loyalty_points": 8
+    }
+  ]

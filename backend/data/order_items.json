@@ -1,0 +1,82 @@
+[
+    {
+  "OrderItem_id": "OI001",
+  "Order_id": "ORD001",
+  "Product_id": "P001",
+  "Quantity": 1,
+  "SubTotal": 1199.99,
+  "Delivery_fee_type": "standard"
+    },
+    {
+  "OrderItem_id": "OI002",
+  "Order_id": "ORD001",
+  "Product_id": "P007",
+  "Quantity": 1,
+  "SubTotal": 79.99,
+  "Delivery_fee_type": "standard"
+    },
+    {
+  "OrderItem_id": "OI003",
+  "Order_id": "ORD002",
+  "Product_id": "P002",
+  "Quantity": 1,
+  "SubTotal": 150.00,
+  "Delivery_fee_type": "standard"
+    },
+    {
+  "OrderItem_id": "OI004",
+  "Order_id": "ORD003",
+  "Product_id": "P003",
+  "Quantity": 1,
+  "SubTotal": 899.99,
+  "Delivery_fee_type": "express"
+    },
+    {
+  "OrderItem_id": "OI005",
+  "Order_id": "ORD006",
+  "Product_id": "P008",
+  "Quantity": 2,
+  "SubTotal": 49.98,
+  "Delivery_fee_type": "standard"
+    },
+    {
+  "OrderItem_id": "OI006",
+  "Order_id": "ORD003",
+  "Product_id": "P004",
+  "Quantity": 1,
+  "SubTotal": 89.50,
+  "Delivery_fee_type": "standard"
+    },
+    {
+  "OrderItem_id": "OI007",
+  "Order_id": "ORD004",
+  "Product_id": "P006",
+  "Quantity": 1,
+  "SubTotal": 12.99,
+  "Delivery_fee_type": "standard"
+    },
+    {
+  "OrderItem_id": "OI008",
+  "Order_id": "ORD005",
+  "Product_id": "P005",
+  "Quantity": 1,
+  "SubTotal": 379.99,
+  "Delivery_fee_type": "express"
+    },
+    {
+  "OrderItem_id": "OI009",
+  "Order_id": "ORD005",
+  "Product_id": "P008",
+  "Quantity": 1,
+  "SubTotal": 24.99,
+  "Delivery_fee_type": "standard"
+    },
+    {
+  "OrderItem_id": "OI010",
+  "Order_id": "ORD007",
+  "Product_id": "P007",
+  "Quantity": 1,
+  "SubTotal": 79.99,
+  "Delivery_fee_type": "standard"
+    }
+  ]

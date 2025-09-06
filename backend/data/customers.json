@@ -1,0 +1,44 @@
+[
+    {
+      "Cus_id": "C001",
+      "Cus_name": "John Smith",
+      "Address": "123 Main St, New York, NY 10001",
+      "Loyal_points": 1250,
+      "Promotion_code_type": "percentage"
+    },
+    {
+      "Cus_id": "C002",
+      "Cus_name": "Emily Johnson",
+      "Address": "456 Oak Ave, Los Angeles, CA 90210",
+      "Loyal_points": 2890,
+      "Promotion_code_type": "fixed"
+    },
+    {
+      "Cus_id": "C003",
+      "Cus_name": "Michael Brown",
+      "Address": "789 Pine Rd, Chicago, IL 60601",
+      "Loyal_points": 750,
+      "Promotion_code_type": "free_delivery"
+    },
+    {
+      "Cus_id": "C004",
+      "Cus_name": "Sarah Davis",
+      "Address": "321 Elm St, Houston, TX 77001",
+      "Loyal_points": 3200,
+      "Promotion_code_type": "percentage"
+    },
+    {
+      "Cus_id": "C005",
+      "Cus_name": "David Wilson",
+      "Address": "654 Maple Dr, Phoenix, AZ 85001",
+      "Loyal_points": 890,
+      "Promotion_code_type": "fixed"
+    },
+    {
+      "Cus_id": "C006",
+      "Cus_name": "Lisa Anderson",
+      "Address": "987 Cedar Ln, Philadelphia, PA 19101",
+      "Loyal_points": 1670,
+      "Promotion_code_type": "free_delivery"
+    }
+  ]
