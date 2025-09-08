@@ -1,0 +1,235 @@
+"use client";
+
+import { DATA } from "@/data";
+import { PromotionCode } from "@/models";
+import { DeliveryType } from "@/utils/enum/delivery_types";
+import { Promotion_code_type } from "@/utils/enum/promotion_code_type";
+import { amountFromName, currency, DELIVERY_FEES } from "@/utils/helpers";
+import { useState, useMemo, useEffect } from "react";
+
+const CheckoutPage: React.FC = () => {
+  const [customerId, setCustomerId] = useState<string>(DATA.customers[0].Cus_id);
+  const [customer, setCustomer] = useState(DATA.customers[0]);
+  const [orderId, setOrderId] = useState<string>(DATA.orders[0].Order_id);
+  const [order, setOrder] = useState(DATA.orders[0]);
+  const [orderItems, setOrderItems] = useState(DATA.order_items.filter((p) => p.Order_id === orderId));
+  const [promotionCodes, setPromotionCodes] = useState<PromotionCode[]>(DATA.promotion_codes);
+
+  // derived value; avoid setState during render to prevent re-renders
+  const [discountAmount, setDiscountAmount] = useState<number>(0);
+  const [total, setTotal] = useState<number>(0);
+  const [totalBeforeDiscount, setTotalBeforeDiscount] = useState<number>(0);
+  const [totalAfterDiscount, setTotalAfterDiscount] = useState<number>(0);
+  const [totalDeliveryFees, setTotalDeliveryFees] = useState<number>(0);
+  // const [coins, setCoins] = useState<number>(0); // estimated coins to be earned
+  const [couponInput, setCouponInput] = useState<string>("");
+  const [coinAmount, setCoinAmount] = useState<number>(0);
+  const [note, setNote] = useState<string>("");
+
+  useEffect(() => {
+    const totalDeliveryFees = orderItems.reduce((sum, item) => {
+        const fee = DELIVERY_FEES[item.Delivery_fee_type as keyof typeof DELIVERY_FEES] || 0;
+        return sum + fee;
+      }, 0);
+    setTotalDeliveryFees(totalDeliveryFees);
+
+    const totalPlusDelivery = (order?.total_price ?? 0) + totalDeliveryFees;
+    setTotalBeforeDiscount(totalPlusDelivery);
+    setTotal(totalPlusDelivery);
+  }, [orderId, order]);
+
+  useEffect(() => {
+    const c = DATA.customers.find((c) => c.Cus_id === customerId) ?? DATA.customers[0];
+    setCustomer(c);
+  }, [customerId]);
+
+  useEffect(() => {
+    const o = DATA.orders.find((o) => o.Order_id === orderId) ?? DATA.orders[0];
+    setOrder(o);
+  }, [orderId]);
+
+  function handleApplyDiscount(code: PromotionCode | null) {
+    console.log("Applying discount for code", code);
+    if (!code) return 0;
+    setCouponInput(code.Name);
+    const today = new Date();
+    const start = new Date(code.Start_date);
+    const end = new Date(code.End_date);
+    //if (today < start || today > end) return 0;
+    let discount = 0;
+    if (code.Promotion_code_type === Promotion_code_type.Percentage) {
+      const pct = amountFromName(code.Name) / 100;
+      discount = order.total_price * pct;
+      setDiscountAmount(discount);
+    }
+    if (code.Promotion_code_type === Promotion_code_type.Fixed) {
+      discount = amountFromName(code.Name);
+      setDiscountAmount(discount);
+    }
+    if (code.Promotion_code_type === Promotion_code_type.Free_delivery) {
+      setDiscountAmount(0);
+    }
+    setTotal(totalBeforeDiscount - discount);
+    console.log("Total after discount", totalBeforeDiscount, discount, total);
+    setTotalAfterDiscount(totalBeforeDiscount - discount);
+  }
+
+  function calculateCoins(coinAmount: number, changer: number) {
+    const newCoinAmount = coinAmount + changer;
+    setCoinAmount(newCoinAmount);
+    setTotal(total - changer);
+  }
+
+  return (
+    <div className="mx-auto max-w-md bg-white text-gray-900">
+      {/* Header */}
+      <div className="sticky top-0 z-10 flex items-center gap-3 border-b bg-white/90 px-4 py-3 backdrop-blur">
+        <button className="rounded-full p-2 hover:bg-gray-100" aria-label="Back">←</button>
+        <h1 className="text-xl font-semibold">My Cart</h1>
+        <div className="ml-auto text-gray-500">🗑️</div>
+      </div>
+
+      {/* Address + Delivery banner */}
+      <div className="space-y-2 border-b px-4 py-3">
+        <div className="flex items-start gap-3">
+          <div>📍</div>
+          <div className="flex-1">
+            <div className="truncate text-sm font-medium">{customer.Cus_name}</div>
+            <div className="truncate text-xs text-gray-500">{customer.Address}</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Cart items */}
+      <div className="divide-y">
+        {orderItems.map((item) => (
+          <div key={item.OrderItem_id} className="flex items-center gap-3 px-4 py-4">
+            <div className="h-16 w-16 flex-shrink-0 rounded-lg bg-gray-100" />
+            <div className="flex-1">
+              <div className="line-clamp-2 text-sm font-medium">
+                {
+                  (() => {
+                    const product = DATA.products.find(p => p.product_id === item.Product_id);
+                    return product ? product.product_name : "Unknown Product";
+                  })()
+                }
+              </div>
+              <div className="mt-1 text-rose-600">
+                {currency(item.SubTotal)}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Coupons / Coins rows */}
+      <div className="mt-2 divide-y border-y">
+        <div className="flex items-center justify-between px-4 py-3">
+          <div className="flex items-center gap-3">
+            <span>🏷️</span>
+            <div>
+              <div className="text-sm font-medium">Coupons and Vouchers</div>
+              <div className="text-xs text-gray-500">{couponInput ? `${couponInput} applied` : "Enter a coupon code"}</div>
+            </div>
+          </div>
+            <div className="flex items-center gap-2">
+            <select
+              className="w-32 rounded-md border px-2 py-1 text-sm"
+              value={couponInput}
+              onChange={(e) => {
+                const selectedCode = promotionCodes.find(code => code.Name === e.target.value) || null;
+                handleApplyDiscount(selectedCode);
+              }}
+            >
+              <option value="">{couponInput || "Select promo code"}</option>
+              {promotionCodes.map((code) => (
+              <option key={code.Name} value={code.Name}>
+                {code.Name}
+              </option>
+              ))}
+            </select>
+            </div>
+        </div>
+
+        <div className="flex items-center justify-between px-4 py-3">
+          <div className="flex items-center gap-3">
+            <span>🪙</span>
+            <div>
+              <div className="text-sm font-medium">Use Loyalty Coins</div>
+              <div className="text-xs text-gray-500">{customer.Loyal_points} coins available</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+                onClick={() => calculateCoins(coinAmount, -1)}
+                className="h-8 w-8 rounded-full border text-lg leading-8"
+              >
+                −
+              </button>
+              <div className="w-6 text-center text-sm">{coinAmount}</div>
+              <button
+                onClick={() => calculateCoins(coinAmount, +1)}
+                className="h-8 w-8 rounded-full border text-lg leading-8"
+              >
+                +
+              </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Order summary */}
+      <div className="space-y-3 border-b px-4 py-4">
+        <h2 className="text-lg font-semibold">Order Summary</h2>
+        <div className="flex items-center justify-between text-sm">
+          <span>Total Price Before Discount</span>
+          <span>{currency(totalBeforeDiscount)}</span>
+        </div>
+        <div className="flex items-center justify-between text-sm">
+          <span>Discount</span>
+          <span className="text-rose-600">{discountAmount > 0 ? `−${currency(discountAmount)}` : currency(0)}</span>
+        </div>
+        <div className="flex items-center justify-between text-sm">
+          <span>Delivery Fee ({totalDeliveryFees})</span>
+          <span>{totalDeliveryFees === 0 ? "Free" : currency(totalDeliveryFees)}</span>
+        </div>
+        {coinAmount > 0 
+          ? <div className="flex items-center justify-between text-sm">
+              <span>Coins Applied</span>
+              <span className="text-rose-600">{`−${currency(coinAmount)}`}</span>
+        </div> : null}
+        <hr />
+        <div className="flex items-center justify-between text-lg font-bold">
+          <span>Total</span>
+          <span>{currency(total)}</span>
+        </div>
+
+        <div className="flex items-center gap-2 rounded-md bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+          <span>✔️</span>
+          <span>
+            {totalDeliveryFees === 0 ? "You get Free Delivery" : "Delivery applied"}
+          </span>
+        </div>
+
+        {note && (
+          <div className="rounded-md bg-gray-100 px-3 py-2 text-xs text-gray-700">{note}</div>
+        )}
+      </div>
+
+      {/* Footer total + CTA */}
+      <div className="sticky bottom-0 z-10 bg-white px-4 pb-4 pt-3 shadow-[0_-6px_12px_-4px_rgba(0,0,0,0.06)]">
+        <div className="mb-2 flex items-center justify-between text-sm">
+          <span>Total</span>
+          <span className="text-lg font-semibold">{currency(total)}</span>
+        </div>
+        <button
+          className="w-full rounded-2xl bg-teal-600 py-3 text-center text-lg font-semibold text-white shadow-md hover:bg-teal-700"
+          onClick={() => alert(`Checked out ${orderItems.length} item(s) for ${currency(total)}`)}
+        >
+          Checkout ({orderItems.length})
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default CheckoutPage;
