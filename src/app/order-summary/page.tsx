@@ -88,24 +88,6 @@ const OrderSummaryPage: React.FC = () => {
         <h1 className="text-xl font-semibold">Order Summary</h1>
       </div>
 
-      {/* Order Selection */}
-      <div className="border-b px-4 py-3">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Select Order to View
-        </label>
-        <select
-          value={orderId}
-          onChange={(e) => setOrderId(e.target.value)}
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
-        >
-          {DATA.orders.map((order) => (
-            <option key={order.Order_id} value={order.Order_id}>
-              {order.Order_id} - {DATA.customers.find(c => c.Cus_id === order.Cus_id)?.Cus_name}
-            </option>
-          ))}
-        </select>
-      </div>
-
       {/* Order Information */}
       <div className="px-4 py-4 border-b">
         <div className="mb-4">
