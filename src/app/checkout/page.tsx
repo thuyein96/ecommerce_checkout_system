@@ -100,7 +100,9 @@ const CheckoutPage: React.FC = () => {
     <div className="mx-auto max-w-md bg-white text-gray-900">
       {/* Header */}
       <div className="sticky top-0 z-10 flex items-center gap-3 border-b bg-white/90 px-4 py-3 backdrop-blur">
-        <button className="rounded-full p-2 hover:bg-gray-100" aria-label="Back">←</button>
+        <Link href="/cart" className="rounded-full p-2 hover:bg-gray-100" aria-label="Back">
+          ←
+        </Link>
         <h1 className="text-xl font-semibold">My Cart</h1>
         <div className="ml-auto text-gray-500">🗑️</div>
       </div>
@@ -239,12 +241,6 @@ const CheckoutPage: React.FC = () => {
           <span className="text-lg font-semibold">{currency(finalTotal)}</span>
         </div>
         <div className="space-y-2">
-          <button
-            className="w-full rounded-2xl bg-teal-600 py-3 text-center text-lg font-semibold text-white shadow-md hover:bg-teal-700"
-            onClick={() => alert(`Checked out ${orderItems.length} item(s) for ${currency(finalTotal)}`)}
-          >
-            Checkout ({orderItems.length})
-          </button>
           <Link 
             href="/order-summary"
             className="w-full rounded-2xl bg-gray-600 py-3 text-center text-lg font-semibold text-white shadow-md hover:bg-gray-700 block"
