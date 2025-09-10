@@ -79,12 +79,13 @@ export const PaymentSuccessModal: React.FC<PaymentSuccessModalProps> = ({
             >
               🏠 Back to Home
             </Link>
-            <button
+            <Link
+              href="/products"
+              className="w-full bg-gray-100 text-gray-700 py-3 px-4 rounded-xl font-medium hover:bg-gray-200 transition-colors block text-center"
               onClick={onClose}
-              className="w-full bg-gray-100 text-gray-700 py-3 px-4 rounded-xl font-medium hover:bg-gray-200 transition-colors"
             >
               Continue Shopping
-            </button>
+            </Link>
           </div>
         </div>
       </div>
