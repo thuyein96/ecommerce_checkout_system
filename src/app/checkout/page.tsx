@@ -6,6 +6,7 @@ import { DeliveryType } from "@/utils/enum/delivery_types";
 import { Promotion_code_type } from "@/utils/enum/promotion_code_type";
 import { amountFromName, currency, DELIVERY_FEES } from "@/utils/helpers";
 import { useState, useMemo, useEffect } from "react";
+import Link from "next/link";
 
 const CheckoutPage: React.FC = () => {
   const [customerId, setCustomerId] = useState<string>(DATA.customers[0].Cus_id);
@@ -237,12 +238,20 @@ const CheckoutPage: React.FC = () => {
           <span>Total</span>
           <span className="text-lg font-semibold">{currency(finalTotal)}</span>
         </div>
-        <button
-          className="w-full rounded-2xl bg-teal-600 py-3 text-center text-lg font-semibold text-white shadow-md hover:bg-teal-700"
-          onClick={() => alert(`Checked out ${orderItems.length} item(s) for ${currency(finalTotal)}`)}
-        >
-          Checkout ({orderItems.length})
-        </button>
+        <div className="space-y-2">
+          <button
+            className="w-full rounded-2xl bg-teal-600 py-3 text-center text-lg font-semibold text-white shadow-md hover:bg-teal-700"
+            onClick={() => alert(`Checked out ${orderItems.length} item(s) for ${currency(finalTotal)}`)}
+          >
+            Checkout ({orderItems.length})
+          </button>
+          <Link 
+            href="/order-summary"
+            className="w-full rounded-2xl bg-gray-600 py-3 text-center text-lg font-semibold text-white shadow-md hover:bg-gray-700 block"
+          >
+            View Order Summary
+          </Link>
+        </div>
       </div>
     </div>
   );

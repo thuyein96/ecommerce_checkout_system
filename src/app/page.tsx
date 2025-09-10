@@ -5,8 +5,10 @@ export default function Home() {
     <>
       <main style={{ padding: 24 }}>
       <h1>Welcome</h1>
-      <nav>
-        <Link href="/checkout">Go to Checkout</Link>
+      <nav style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px' }}>
+        <Link href="/checkout" style={{ padding: '8px 16px', backgroundColor: '#0891b2', color: 'white', textDecoration: 'none', borderRadius: '6px', textAlign: 'center' }}>
+          Go to Checkout
+        </Link>
       </nav>
     </main>
     </>
