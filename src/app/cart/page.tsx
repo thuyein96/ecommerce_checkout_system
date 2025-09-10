@@ -4,9 +4,7 @@ import { useCart } from "../../context/CartContext";
 import Link from "next/link";
 
 const CartPage = () => {
-  const { cart } = useCart();
-
-  const { clearCart } = useCart();
+  const { cart, clearCart } = useCart();
   return (
     <main style={{ padding: "32px" }}>
       <h1 style={{ fontSize: "2rem", marginBottom: "24px" }}>Cart</h1>

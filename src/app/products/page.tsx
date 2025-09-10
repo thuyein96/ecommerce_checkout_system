@@ -13,7 +13,7 @@ const ProductsPage = () => {
           href="/cart"
           className="p-2 bg-red-500 rounded-lg cursor-pointer font-semibold text-white"
         >
-          View you shopping cart
+          View your shopping cart
         </Link>
       </div>
       <div
