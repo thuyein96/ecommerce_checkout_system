@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import { useCart } from "../context/CartContext";
 
 interface ProductCardProps {
   product: {
@@ -28,8 +29,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const handleIncrease = () => {
     setQuantity((prev) => (prev < product.instock_Quantity ? prev + 1 : prev));
   };
+  const { addToCart } = useCart();
   const handleAddToCart = () => {
-    // TODO: Implement add to cart logic (e.g., context, localStorage, etc.)
+    addToCart(product, quantity);
     alert(`Added ${quantity} x ${product.product_name} to cart!`);
   };
 
