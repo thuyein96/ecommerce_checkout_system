@@ -1,44 +1,56 @@
 [
-    {
-      "Cus_id": "C001",
-      "Cus_name": "John Smith",
-      "Address": "123 Main St, New York, NY 10001",
-      "Loyal_points": 1250,
-      "Promotion_code_type": "percentage"
-    },
-    {
-      "Cus_id": "C002",
-      "Cus_name": "Emily Johnson",
-      "Address": "456 Oak Ave, Los Angeles, CA 90210",
-      "Loyal_points": 2890,
-      "Promotion_code_type": "fixed"
-    },
-    {
-      "Cus_id": "C003",
-      "Cus_name": "Michael Brown",
-      "Address": "789 Pine Rd, Chicago, IL 60601",
-      "Loyal_points": 750,
-      "Promotion_code_type": "free_delivery"
-    },
-    {
-      "Cus_id": "C004",
-      "Cus_name": "Sarah Davis",
-      "Address": "321 Elm St, Houston, TX 77001",
-      "Loyal_points": 3200,
-      "Promotion_code_type": "percentage"
-    },
-    {
-      "Cus_id": "C005",
-      "Cus_name": "David Wilson",
-      "Address": "654 Maple Dr, Phoenix, AZ 85001",
-      "Loyal_points": 890,
-      "Promotion_code_type": "fixed"
-    },
-    {
-      "Cus_id": "C006",
-      "Cus_name": "Lisa Anderson",
-      "Address": "987 Cedar Ln, Philadelphia, PA 19101",
-      "Loyal_points": 1670,
-      "Promotion_code_type": "free_delivery"
-    }
-  ]
+  {
+    "Cus_id": "C001",
+    "Cus_name": "John Smith",
+    "Address": "123 Main St, New York, NY 10001",
+    "Loyal_points": 1250,
+    "Phone": "+1-212-555-0101",
+    "Email": "john.smith@example.com",
+    "Promotion_codes": ["PROMO001", "PROMO003"]
+  },
+  {
+    "Cus_id": "C002",
+    "Cus_name": "Emily Johnson",
+    "Address": "456 Oak Ave, Los Angeles, CA 90210",
+    "Loyal_points": 2890,
+    "Phone": "+1-310-555-0202",
+    "Email": "emily.johnson@example.com",
+    "Promotion_codes": ["PROMO002", "PROMO005"]
+  },
+  {
+    "Cus_id": "C003",
+    "Cus_name": "Michael Brown",
+    "Address": "789 Pine Rd, Chicago, IL 60601",
+    "Loyal_points": 750,
+    "Phone": "+1-312-555-0303",
+    "Email": "michael.brown@example.com",
+    "Promotion_codes": ["PROMO003"]
+  },
+  {
+    "Cus_id": "C004",
+    "Cus_name": "Sarah Davis",
+    "Address": "321 Elm St, Houston, TX 77001",
+    "Loyal_points": 3200,
+    "Phone": "+1-713-555-0404",
+    "Email": "sarah.davis@example.com",
+    "Promotion_codes": ["PROMO001", "PROMO004"]
+  },
+  {
+    "Cus_id": "C005",
+    "Cus_name": "David Wilson",
+    "Address": "654 Maple Dr, Phoenix, AZ 85001",
+    "Loyal_points": 890,
+    "Phone": "+1-602-555-0505",
+    "Email": "david.wilson@example.com",
+    "Promotion_codes": ["PROMO005"]
+  },
+  {
+    "Cus_id": "C006",
+    "Cus_name": "Lisa Anderson",
+    "Address": "987 Cedar Ln, Philadelphia, PA 19101",
+    "Loyal_points": 1670,
+    "Phone": "+1-215-555-0606",
+    "Email": "lisa.anderson@example.com",
+    "Promotion_codes": ["PROMO003", "PROMO004"]
+  }
+]
