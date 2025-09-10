@@ -5,6 +5,8 @@ import Link from "next/link";
 
 const CartPage = () => {
   const { cart } = useCart();
+
+  const { clearCart } = useCart();
   return (
     <main style={{ padding: "32px" }}>
       <h1 style={{ fontSize: "2rem", marginBottom: "24px" }}>Cart</h1>
@@ -14,6 +16,14 @@ const CartPage = () => {
       >
         Back to Products
       </Link>
+      <br />
+      <br />
+      <button
+        onClick={clearCart}
+        className="p-2 bg-red-500 rounded-lg cursor-pointer font-semibold text-white"
+      >
+        Clear Cart
+      </button>
       <br />
       <br />
       {cart.length === 0 ? (

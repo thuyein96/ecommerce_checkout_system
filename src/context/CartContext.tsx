@@ -1,5 +1,5 @@
 "use client";
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 
 export interface Product {
   product_id: string;
@@ -17,11 +17,13 @@ export type CartItem = { product: Product; quantity: number };
 interface CartContextType {
   cart: CartItem[];
   addToCart: (product: Product, quantity: number) => void;
+  clearCart: () => void;
 }
 
 const CartContext = createContext<CartContextType>({
   cart: [],
   addToCart: () => {},
+  clearCart: () => {},
 });
 
 export const useCart = () => useContext(CartContext);
@@ -30,6 +32,15 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [cart, setCart] = useState<CartItem[]>([]);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("cart");
+    if (stored) setCart(JSON.parse(stored));
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("cart", JSON.stringify(cart));
+  }, [cart]);
 
   const addToCart = (product: Product, quantity: number) => {
     setCart((prev) => {
@@ -45,8 +56,12 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
     });
   };
 
+  const clearCart = () => {
+    setCart([]);
+  };
+
   return (
-    <CartContext.Provider value={{ cart, addToCart }}>
+    <CartContext.Provider value={{ cart, addToCart, clearCart }}>
       {children}
     </CartContext.Provider>
   );
