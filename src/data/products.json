@@ -1,82 +1,402 @@
 [
-    {
-      "product_id": "P001",
-      "product_name": "iPhone 15 Pro Max",
-      "price": 1199.99,
-      "shop_id": "SHOP001",
-      "image": "https://example.com/images/iphone15promax.jpg",
-      "review": 4.5,
-      "instock_Quantity": 25,
-      "product_category": "Electronics"
-    },
-    {
-      "product_id": "P002",
-      "product_name": "Nike Air Max 270",
-      "price": 150.00,
-      "shop_id": "SHOP002",
-      "image": "https://example.com/images/nikeairmax270.jpg",
-      "review": 4.2,
-      "instock_Quantity": 50,
-      "product_category": "Footwear"
-    },
-    {
-      "product_id": "P003",
-      "product_name": "Samsung 55\" QLED TV",
-      "price": 899.99,
-      "shop_id": "SHOP001",
-      "image": "https://example.com/images/samsung55qled.jpg",
-      "review": 4.7,
-      "instock_Quantity": 15,
-      "product_category": "Electronics"
-    },
-    {
-      "product_id": "P004",
-      "product_name": "Levi's 501 Original Jeans",
-      "price": 89.50,
-      "shop_id": "SHOP003",
-      "image": "https://example.com/images/levis501.jpg",
-      "review": 4.3,
-      "instock_Quantity": 100,
-      "product_category": "Clothing"
-    },
-    {
-      "product_id": "P005",
-      "product_name": "KitchenAid Stand Mixer",
-      "price": 379.99,
-      "shop_id": "SHOP004",
-      "image": "https://example.com/images/kitchenaid_mixer.jpg",
-      "review": 4.8,
-      "instock_Quantity": 30,
-      "product_category": "Home & Kitchen"
-    },
-    {
-      "product_id": "P006",
-      "product_name": "The Great Gatsby Book",
-      "price": 12.99,
-      "shop_id": "SHOP005",
-      "image": "https://example.com/images/great_gatsby.jpg",
-      "review": 4.4,
-      "instock_Quantity": 200,
-      "product_category": "Books"
-    },
-    {
-      "product_id": "P007",
-      "product_name": "Wireless Bluetooth Headphones",
-      "price": 79.99,
-      "shop_id": "SHOP001",
-      "image": "https://example.com/images/bluetooth_headphones.jpg",
-      "review": 4.1,
-      "instock_Quantity": 75,
-      "product_category": "Electronics"
-    },
-    {
-      "product_id": "P008",
-      "product_name": "Organic Green Tea (50 bags)",
-      "price": 24.99,
-      "shop_id": "SHOP006",
-      "image": "https://example.com/images/green_tea.jpg",
-      "review": 4.6,
-      "instock_Quantity": 150,
-      "product_category": "Food & Beverages"
-    }
+  {
+    "product_id": "P001",
+    "product_name": "iPhone 15 Pro Max",
+    "price": 1199.99,
+    "shop_id": "SHOP001",
+    "image": "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=400&q=80",
+    "review": 4.5,
+    "instock_Quantity": 25,
+    "product_category": "Electronics"
+  },
+  {
+    "product_id": "P002",
+    "product_name": "Nike Air Max 270",
+    "price": 150.0,
+    "shop_id": "SHOP002",
+    "image": "https://images.unsplash.com/photo-1519864600265-abb23847ef2c?auto=format&fit=crop&w=400&q=80",
+    "review": 4.2,
+    "instock_Quantity": 50,
+    "product_category": "Footwear"
+  },
+  {
+    "product_id": "P003",
+    "product_name": "Samsung 55\" QLED TV",
+    "price": 899.99,
+    "shop_id": "SHOP001",
+    "image": "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=400&q=80",
+    "review": 4.7,
+    "instock_Quantity": 15,
+    "product_category": "Electronics"
+  },
+  {
+    "product_id": "P004",
+    "product_name": "Levi's 501 Original Jeans",
+    "price": 89.5,
+    "shop_id": "SHOP003",
+    "image": "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=400&q=80",
+    "review": 4.3,
+    "instock_Quantity": 100,
+    "product_category": "Clothing"
+  },
+  {
+    "product_id": "P005",
+    "product_name": "KitchenAid Stand Mixer",
+    "price": 379.99,
+    "shop_id": "SHOP004",
+    "image": "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80",
+    "review": 4.8,
+    "instock_Quantity": 30,
+    "product_category": "Home & Kitchen"
+  },
+  {
+    "product_id": "P006",
+    "product_name": "The Great Gatsby Book",
+    "price": 12.99,
+    "shop_id": "SHOP005",
+    "image": "https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=400&q=80",
+    "review": 4.4,
+    "instock_Quantity": 200,
+    "product_category": "Books"
+  },
+  {
+    "product_id": "P007",
+    "product_name": "Wireless Bluetooth Headphones",
+    "price": 79.99,
+    "shop_id": "SHOP001",
+    "image": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=400&q=80",
+    "review": 4.1,
+    "instock_Quantity": 75,
+    "product_category": "Electronics"
+  },
+  {
+    "product_id": "P008",
+    "product_name": "Organic Green Tea (50 bags)",
+    "price": 24.99,
+    "shop_id": "SHOP006",
+    "image": "https://images.unsplash.com/photo-1464306076886-debede6bbf94?auto=format&fit=crop&w=400&q=80",
+    "review": 4.6,
+    "instock_Quantity": 150,
+    "product_category": "Food & Beverages"
+  },
+  {
+    "product_id": "P009",
+    "product_name": "MacBook Pro 16-inch",
+    "price": 2499.99,
+    "shop_id": "SHOP001",
+    "image": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=400&q=80",
+    "review": 4.8,
+    "instock_Quantity": 12,
+    "product_category": "Electronics"
+  },
+  {
+    "product_id": "P010",
+    "product_name": "Adidas Ultraboost 22",
+    "price": 180.0,
+    "shop_id": "SHOP002",
+    "image": "https://images.unsplash.com/photo-1544966503-7cc5ac882d5f?auto=format&fit=crop&w=400&q=80",
+    "review": 4.4,
+    "instock_Quantity": 40,
+    "product_category": "Footwear"
+  },
+  {
+    "product_id": "P011",
+    "product_name": "Canon EOS R5 Camera",
+    "price": 3899.99,
+    "shop_id": "SHOP007",
+    "image": "https://images.unsplash.com/photo-1606983340126-99ab4feaa64a?auto=format&fit=crop&w=400&q=80",
+    "review": 4.9,
+    "instock_Quantity": 8,
+    "product_category": "Electronics"
+  },
+  {
+    "product_id": "P012",
+    "product_name": "Ralph Lauren Polo Shirt",
+    "price": 85.0,
+    "shop_id": "SHOP003",
+    "image": "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=400&q=80",
+    "review": 4.2,
+    "instock_Quantity": 80,
+    "product_category": "Clothing"
+  },
+  {
+    "product_id": "P013",
+    "product_name": "Dyson V15 Detect Vacuum",
+    "price": 749.99,
+    "shop_id": "SHOP004",
+    "image": "https://images.unsplash.com/photo-1558618644-fcd25c85cd64?auto=format&fit=crop&w=400&q=80",
+    "review": 4.7,
+    "instock_Quantity": 20,
+    "product_category": "Home & Kitchen"
+  },
+  {
+    "product_id": "P014",
+    "product_name": "Harry Potter Complete Series",
+    "price": 65.99,
+    "shop_id": "SHOP005",
+    "image": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80",
+    "review": 4.9,
+    "instock_Quantity": 150,
+    "product_category": "Books"
+  },
+  {
+    "product_id": "P015",
+    "product_name": "Colombian Coffee Beans (2lb)",
+    "price": 34.99,
+    "shop_id": "SHOP006",
+    "image": "https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&w=400&q=80",
+    "review": 4.5,
+    "instock_Quantity": 100,
+    "product_category": "Food & Beverages"
+  },
+  {
+    "product_id": "P016",
+    "product_name": "Sony PlayStation 5",
+    "price": 499.99,
+    "shop_id": "SHOP001",
+    "image": "https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?auto=format&fit=crop&w=400&q=80",
+    "review": 4.6,
+    "instock_Quantity": 5,
+    "product_category": "Electronics"
+  },
+  {
+    "product_id": "P017",
+    "product_name": "Vans Old Skool Sneakers",
+    "price": 65.0,
+    "shop_id": "SHOP002",
+    "image": "https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?auto=format&fit=crop&w=400&q=80",
+    "review": 4.3,
+    "instock_Quantity": 90,
+    "product_category": "Footwear"
+  },
+  {
+    "product_id": "P018",
+    "product_name": "Instant Pot Duo 7-in-1",
+    "price": 99.99,
+    "shop_id": "SHOP004",
+    "image": "https://images.unsplash.com/photo-1585515656792-f2b1a6b2b37e?auto=format&fit=crop&w=400&q=80",
+    "review": 4.6,
+    "instock_Quantity": 45,
+    "product_category": "Home & Kitchen"
+  },
+  {
+    "product_id": "P019",
+    "product_name": "Patagonia Fleece Jacket",
+    "price": 129.0,
+    "shop_id": "SHOP003",
+    "image": "https://images.unsplash.com/photo-1551537482-f2075a1d41f2?auto=format&fit=crop&w=400&q=80",
+    "review": 4.4,
+    "instock_Quantity": 35,
+    "product_category": "Clothing"
+  },
+  {
+    "product_id": "P020",
+    "product_name": "Kindle Paperwhite",
+    "price": 139.99,
+    "shop_id": "SHOP005",
+    "image": "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=400&q=80",
+    "review": 4.7,
+    "instock_Quantity": 60,
+    "product_category": "Electronics"
+  },
+  {
+    "product_id": "P021",
+    "product_name": "Organic Honey (16oz)",
+    "price": 18.99,
+    "shop_id": "SHOP006",
+    "image": "https://images.unsplash.com/photo-1587049352846-4a222e784d38?auto=format&fit=crop&w=400&q=80",
+    "review": 4.8,
+    "instock_Quantity": 120,
+    "product_category": "Food & Beverages"
+  },
+  {
+    "product_id": "P022",
+    "product_name": "Apple Watch Series 9",
+    "price": 429.99,
+    "shop_id": "SHOP001",
+    "image": "https://images.unsplash.com/photo-1510017098667-27dfc4e55c9d?auto=format&fit=crop&w=400&q=80",
+    "review": 4.5,
+    "instock_Quantity": 30,
+    "product_category": "Electronics"
+  },
+  {
+    "product_id": "P023",
+    "product_name": "Allbirds Tree Runners",
+    "price": 98.0,
+    "shop_id": "SHOP002",
+    "image": "https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=400&q=80",
+    "review": 4.2,
+    "instock_Quantity": 55,
+    "product_category": "Footwear"
+  },
+  {
+    "product_id": "P024",
+    "product_name": "Nespresso Vertuo Next",
+    "price": 169.99,
+    "shop_id": "SHOP004",
+    "image": "https://images.unsplash.com/photo-1542181961-9590d0c79dab?auto=format&fit=crop&w=400&q=80",
+    "review": 4.3,
+    "instock_Quantity": 25,
+    "product_category": "Home & Kitchen"
+  },
+  {
+    "product_id": "P025",
+    "product_name": "Champion Reverse Weave Hoodie",
+    "price": 75.0,
+    "shop_id": "SHOP003",
+    "image": "https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=400&q=80",
+    "review": 4.1,
+    "instock_Quantity": 70,
+    "product_category": "Clothing"
+  },
+  {
+    "product_id": "P026",
+    "product_name": "Dune: Complete Series",
+    "price": 42.99,
+    "shop_id": "SHOP005",
+    "image": "https://images.unsplash.com/photo-1495446815901-a7297e633e8d?auto=format&fit=crop&w=400&q=80",
+    "review": 4.6,
+    "instock_Quantity": 85,
+    "product_category": "Books"
+  },
+  {
+    "product_id": "P027",
+    "product_name": "Artisan Dark Chocolate (70%)",
+    "price": 12.99,
+    "shop_id": "SHOP006",
+    "image": "https://images.unsplash.com/photo-1548907040-4baa42d10919?auto=format&fit=crop&w=400&q=80",
+    "review": 4.7,
+    "instock_Quantity": 200,
+    "product_category": "Food & Beverages"
+  },
+  {
+    "product_id": "P028",
+    "product_name": "Nintendo Switch OLED",
+    "price": 349.99,
+    "shop_id": "SHOP001",
+    "image": "https://images.unsplash.com/photo-1578662996442-48f60103fc96?auto=format&fit=crop&w=400&q=80",
+    "review": 4.4,
+    "instock_Quantity": 18,
+    "product_category": "Electronics"
+  },
+  {
+    "product_id": "P029",
+    "product_name": "Converse Chuck Taylor All Star",
+    "price": 55.0,
+    "shop_id": "SHOP002",
+    "image": "https://images.unsplash.com/photo-1514989940723-e8e51635b782?auto=format&fit=crop&w=400&q=80",
+    "review": 4.0,
+    "instock_Quantity": 110,
+    "product_category": "Footwear"
+  },
+  {
+    "product_id": "P030",
+    "product_name": "Vitamix 5200 Blender",
+    "price": 449.99,
+    "shop_id": "SHOP004",
+    "image": "https://images.unsplash.com/photo-1570197788417-0e82375c9371?auto=format&fit=crop&w=400&q=80",
+    "review": 4.8,
+    "instock_Quantity": 22,
+    "product_category": "Home & Kitchen"
+  },
+  {
+    "product_id": "P031",
+    "product_name": "Uniqlo Heattech Long Sleeve",
+    "price": 29.9,
+    "shop_id": "SHOP003",
+    "image": "https://images.unsplash.com/photo-1503341338985-b0c3a2b52dd2?auto=format&fit=crop&w=400&q=80",
+    "review": 4.3,
+    "instock_Quantity": 150,
+    "product_category": "Clothing"
+  },
+  {
+    "product_id": "P032",
+    "product_name": "1984 by George Orwell",
+    "price": 15.99,
+    "shop_id": "SHOP005",
+    "image": "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&w=400&q=80",
+    "review": 4.5,
+    "instock_Quantity": 180,
+    "product_category": "Books"
+  },
+  {
+    "product_id": "P033",
+    "product_name": "Himalayan Pink Salt (2lb)",
+    "price": 22.99,
+    "shop_id": "SHOP006",
+    "image": "https://images.unsplash.com/photo-1551024506-0bccd828d307?auto=format&fit=crop&w=400&q=80",
+    "review": 4.4,
+    "instock_Quantity": 75,
+    "product_category": "Food & Beverages"
+  },
+  {
+    "product_id": "P034",
+    "product_name": "Bose QuietComfort 45",
+    "price": 329.99,
+    "shop_id": "SHOP001",
+    "image": "https://images.unsplash.com/photo-1583394838336-acd977736f90?auto=format&fit=crop&w=400&q=80",
+    "review": 4.6,
+    "instock_Quantity": 28,
+    "product_category": "Electronics"
+  },
+  {
+    "product_id": "P035",
+    "product_name": "Dr. Martens 1460 Boots",
+    "price": 170.0,
+    "shop_id": "SHOP002",
+    "image": "https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=400&q=80",
+    "review": 4.5,
+    "instock_Quantity": 32,
+    "product_category": "Footwear"
+  },
+  {
+    "product_id": "P036",
+    "product_name": "Robot Vacuum Cleaner",
+    "price": 299.99,
+    "shop_id": "SHOP004",
+    "image": "https://images.unsplash.com/photo-1558618644-3ac4b85c0bd2?auto=format&fit=crop&w=400&q=80",
+    "review": 4.2,
+    "instock_Quantity": 15,
+    "product_category": "Home & Kitchen"
+  },
+  {
+    "product_id": "P037",
+    "product_name": "North Face Puffer Jacket",
+    "price": 220.0,
+    "shop_id": "SHOP003",
+    "image": "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?auto=format&fit=crop&w=400&q=80",
+    "review": 4.7,
+    "instock_Quantity": 25,
+    "product_category": "Clothing"
+  },
+  {
+    "product_id": "P038",
+    "product_name": "Sapiens by Yuval Noah Harari",
+    "price": 19.99,
+    "shop_id": "SHOP005",
+    "image": "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=400&q=80",
+    "review": 4.8,
+    "instock_Quantity": 95,
+    "product_category": "Books"
+  },
+  {
+    "product_id": "P039",
+    "product_name": "Craft Beer Variety Pack (12 bottles)",
+    "price": 39.99,
+    "shop_id": "SHOP006",
+    "image": "https://images.unsplash.com/photo-1558642452-9d2a7deb7f62?auto=format&fit=crop&w=400&q=80",
+    "review": 4.3,
+    "instock_Quantity": 50,
+    "product_category": "Food & Beverages"
+  },
+  {
+    "product_id": "P040",
+    "product_name": "iPad Air 5th Generation",
+    "price": 599.99,
+    "shop_id": "SHOP001",
+    "image": "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?auto=format&fit=crop&w=400&q=80",
+    "review": 4.7,
+    "instock_Quantity": 20,
+    "product_category": "Electronics"
+  }
 ]
