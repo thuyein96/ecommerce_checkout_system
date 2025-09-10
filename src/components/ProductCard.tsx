@@ -1,4 +1,5 @@
-import React from "react";
+"use client";
+import React, { useState } from "react";
 
 interface ProductCardProps {
   product: {
@@ -13,7 +14,25 @@ interface ProductCardProps {
   };
 }
 
+const DUMMY_IMAGE =
+  "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=400&q=80";
+
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+  const [quantity, setQuantity] = useState(1);
+  const imageSrc =
+    product.image && product.image.trim() !== "" ? product.image : DUMMY_IMAGE;
+
+  const handleDecrease = () => {
+    setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
+  };
+  const handleIncrease = () => {
+    setQuantity((prev) => (prev < product.instock_Quantity ? prev + 1 : prev));
+  };
+  const handleAddToCart = () => {
+    // TODO: Implement add to cart logic (e.g., context, localStorage, etc.)
+    alert(`Added ${quantity} x ${product.product_name} to cart!`);
+  };
+
   return (
     <div
       style={{
@@ -30,7 +49,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       }}
     >
       <img
-        src={product.image}
+        src={imageSrc}
         alt={product.product_name}
         style={{
           width: "180px",
@@ -38,6 +57,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           objectFit: "cover",
           borderRadius: "6px",
           background: "#f3f3f3",
+        }}
+        onError={(e) => {
+          (e.target as HTMLImageElement).src = DUMMY_IMAGE;
         }}
       />
       <h3 style={{ margin: "12px 0 4px 0", fontSize: "1.1rem" }}>
@@ -77,6 +99,68 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       >
         From Shop: {product.shop_id}
       </div>
+      {/* Quantity Selector & Add to Cart */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          marginTop: "16px",
+          gap: "8px",
+        }}
+      >
+        <button
+          onClick={handleDecrease}
+          disabled={quantity <= 1}
+          style={{
+            padding: "4px 10px",
+            fontSize: "1.1rem",
+            borderRadius: "4px",
+            border: "1px solid #ccc",
+            background: "#f7f7f7",
+            cursor: quantity > 1 ? "pointer" : "not-allowed",
+          }}
+        >
+          -
+        </button>
+        <span
+          style={{ minWidth: "32px", textAlign: "center", fontWeight: "bold" }}
+        >
+          {quantity}
+        </span>
+        <button
+          onClick={handleIncrease}
+          disabled={quantity >= product.instock_Quantity}
+          style={{
+            padding: "4px 10px",
+            fontSize: "1.1rem",
+            borderRadius: "4px",
+            border: "1px solid #ccc",
+            background: "#f7f7f7",
+            cursor:
+              quantity < product.instock_Quantity ? "pointer" : "not-allowed",
+          }}
+        >
+          +
+        </button>
+      </div>
+      <button
+        onClick={handleAddToCart}
+        disabled={product.instock_Quantity === 0}
+        style={{
+          marginTop: "12px",
+          padding: "8px 16px",
+          background: product.instock_Quantity === 0 ? "#ccc" : "#0070f3",
+          color: "#fff",
+          border: "none",
+          borderRadius: "4px",
+          fontWeight: "bold",
+          fontSize: "1rem",
+          cursor: product.instock_Quantity === 0 ? "not-allowed" : "pointer",
+          transition: "background 0.2s",
+        }}
+      >
+        Add to Cart
+      </button>
     </div>
   );
 };
