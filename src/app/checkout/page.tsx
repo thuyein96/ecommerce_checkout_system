@@ -5,38 +5,13 @@ import { PromotionCode } from "@/models";
 import { DeliveryType } from "@/utils/enum/delivery_types";
 import { Promotion_code_type } from "@/utils/enum/promotion_code_type";
 import { amountFromName, currency, DELIVERY_FEES } from "@/utils/helpers";
+import { calculateDeliveryFees, calculateSubtotal } from "@/utils/checkout";
 import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import { useCart } from "../../context/CartContext";
 
 const CheckoutPage: React.FC = () => {
   const { cart } = useCart();
-
-  // Function to calculate delivery fees per shop
-  const calculateDeliveryFees = (
-    cartItems: typeof cart,
-    deliveryMethods: Record<string, "standard" | "priority">
-  ) => {
-    // Group items by shop
-    const shopGroups = cartItems.reduce((groups, item) => {
-      const shopId = item.product.shop_id;
-      if (!groups[shopId]) {
-        groups[shopId] = [];
-      }
-      groups[shopId].push(item);
-      return groups;
-    }, {} as Record<string, typeof cart>);
-
-    // Calculate delivery fee per shop (one fee per shop regardless of items count)
-    let totalDeliveryFees = 0;
-    Object.entries(shopGroups).forEach(([shopId, items]) => {
-      // Get the delivery method for this shop
-      const shopDeliveryMethod = deliveryMethods[shopId] || "standard";
-      totalDeliveryFees += DELIVERY_FEES[shopDeliveryMethod];
-    });
-
-    return { totalDeliveryFees, shopGroups };
-  };
 
   // Group cart items by shop for display
   const groupedCartItems = useMemo(() => {
@@ -83,10 +58,7 @@ const CheckoutPage: React.FC = () => {
 
   // subtotal: calculate from cart items
   const subtotal = useMemo(() => {
-    return cart.reduce(
-      (sum, item) => sum + item.product.price * item.quantity,
-      0
-    );
+    return calculateSubtotal(cart);
   }, [cart]);
 
   // delivery total (base fees) based on selected delivery methods per shop
