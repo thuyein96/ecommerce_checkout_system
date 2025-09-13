@@ -85,6 +85,7 @@ export function validatePromotionForCart(
 
   const start = new Date(promotion.Start_date);
   const end = new Date(promotion.End_date);
+  console.log("Promotion validity period:", start, end, "Now:", now);
   if (now < start || now > end) {
     return { valid: false, reason: "expired", discountAmount: 0, freeDelivery: false, promotionName: promotion.Name };
   }

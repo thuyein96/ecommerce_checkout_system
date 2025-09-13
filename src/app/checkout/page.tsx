@@ -1,7 +1,10 @@
 "use client";
 
-import { DATA } from "@/data";
-import { PromotionCode } from "@/models";
+// import { DATA } from "@/data";
+import customers from "@/data/customers.json";
+import promotion_codes from "@/data/promotion_codes.json";
+
+import { Customer, PromotionCode } from "@/models";
 import { currency, DELIVERY_FEES } from "@/utils/helpers";
 import { calculateDeliveryFees, calculateSubtotal } from "@/utils/checkout";
 import { useState, useMemo, useEffect } from "react";
@@ -16,7 +19,7 @@ import {
 } from "../services/checkout.service";
 
 const CheckoutPage: React.FC = () => {
-  const [customer] = useState(DATA.customers[0]);
+  const [customer] = useState(customers[0] as Customer);
   const { cart } = useCart();
 
   // Group cart items by shop for display
@@ -34,9 +37,10 @@ const CheckoutPage: React.FC = () => {
 
   // promotion codes are static dataset; derive once
   const promotionCodes = useMemo(
-    () => DATA.promotion_codes as PromotionCode[],
+    () => promotion_codes as PromotionCode[],
     []
   );
+  console.log("Available promotion codes:", promotionCodes);
   // Delivery method state for each shop
   const [deliveryMethods, setDeliveryMethods] = useState<
     Record<string, DeliveryType>
