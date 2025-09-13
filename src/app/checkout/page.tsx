@@ -2,19 +2,25 @@
 
 import { DATA } from "@/data";
 import { PromotionCode } from "@/models";
-import { DeliveryType } from "@/utils/enum/delivery_types";
-import { Promotion_code_type } from "@/utils/enum/promotion_code_type";
-import { amountFromName, currency, DELIVERY_FEES } from "@/utils/helpers";
+import { currency, DELIVERY_FEES } from "@/utils/helpers";
 import { calculateDeliveryFees, calculateSubtotal } from "@/utils/checkout";
 import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import { useCart } from "../../context/CartContext";
+import { DeliveryType } from "@/utils/enum/delivery_types";
+import {
+  computeDiscountForCoupon,
+  computeEffectiveDelivery,
+  logCouponUsage,
+  validatePromotionForCart,
+} from "../services/checkout.service";
 
 const CheckoutPage: React.FC = () => {
+  const [customer] = useState(DATA.customers[0]);
   const { cart } = useCart();
 
   // Group cart items by shop for display
-  const groupedCartItems = useMemo(() => {
+  const groupedByShop = useMemo(() => {
     const groups = cart.reduce((groups, item) => {
       const shopId = item.product.shop_id;
       if (!groups[shopId]) {
@@ -25,26 +31,20 @@ const CheckoutPage: React.FC = () => {
     }, {} as Record<string, typeof cart>);
     return groups;
   }, [cart]);
-  const [customerId, setCustomerId] = useState<string>(
-    DATA.customers[0].Cus_id
-  );
-  const [customer, setCustomer] = useState(DATA.customers[0]);
-  const [orderId, setOrderId] = useState<string>(DATA.orders[0].Order_id);
-  const [order, setOrder] = useState(DATA.orders[0]);
-  const [orderItems, setOrderItems] = useState(
-    DATA.order_items.filter((p) => p.Order_id === orderId)
-  );
-  const [promotionCodes, setPromotionCodes] = useState<PromotionCode[]>(
-    DATA.promotion_codes
+
+  // promotion codes are static dataset; derive once
+  const promotionCodes = useMemo(
+    () => DATA.promotion_codes as PromotionCode[],
+    []
   );
   // Delivery method state for each shop
   const [deliveryMethods, setDeliveryMethods] = useState<
-    Record<string, "standard" | "priority">
+    Record<string, DeliveryType>
   >(() => {
-    const initial: Record<string, "standard" | "priority"> = {};
+    const initial: Record<string, DeliveryType> = {};
     const shops = [...new Set(cart.map((item) => item.product.shop_id))];
     shops.forEach((shopId) => {
-      initial[shopId] = "standard";
+      initial[shopId] = DeliveryType.STANDARD;
     });
     return initial;
   });
@@ -54,7 +54,7 @@ const CheckoutPage: React.FC = () => {
     null
   );
   const [coinAmount, setCoinAmount] = useState<number>(0);
-  const [note, setNote] = useState<string>("");
+  const [note] = useState<string>("");
 
   // subtotal: calculate from cart items
   const subtotal = useMemo(() => {
@@ -67,38 +67,15 @@ const CheckoutPage: React.FC = () => {
     return totalDeliveryFees;
   }, [cart, deliveryMethods]);
 
-  // total before discount
-  const totalBeforeDiscount = useMemo(
-    () => subtotal + totalDeliveryFees,
-    [subtotal, totalDeliveryFees]
+  const discountAmount = useMemo(
+    () => computeDiscountForCoupon(appliedCoupon, subtotal),
+    [appliedCoupon, subtotal]
   );
 
-  // discount derived from applied coupon
-  const discountAmount = useMemo(() => {
-    if (!appliedCoupon) return 0;
-    const today = new Date();
-    const start = new Date(appliedCoupon.Start_date);
-    const end = new Date(appliedCoupon.End_date);
-    //if (today < start || today > end) return 0;
-    if (appliedCoupon.Promotion_code_type === Promotion_code_type.Percentage) {
-      const pct = amountFromName(appliedCoupon.Name) / 100;
-      return subtotal * pct;
-    }
-    if (appliedCoupon.Promotion_code_type === Promotion_code_type.Fixed) {
-      return amountFromName(appliedCoupon.Name);
-    }
-    // Free delivery -> no discount on price; handled by effectiveDelivery
-    return 0;
-  }, [appliedCoupon, subtotal]);
-
-  // effective delivery after promotions (free-delivery coupon)
-  const effectiveDelivery = useMemo(() => {
-    if (
-      appliedCoupon?.Promotion_code_type === Promotion_code_type.Free_delivery
-    )
-      return 0;
-    return totalDeliveryFees;
-  }, [appliedCoupon, totalDeliveryFees]);
+  const effectiveDelivery = useMemo(
+    () => computeEffectiveDelivery(appliedCoupon, totalDeliveryFees),
+    [appliedCoupon, totalDeliveryFees]
+  );
 
   // coins that actually apply (bounded by customer balance and allowed amount)
   const coinsToApply = useMemo(() => {
@@ -118,7 +95,15 @@ const CheckoutPage: React.FC = () => {
 
   // handlers update minimal state only
   function handleApplyCoupon(code: PromotionCode | null) {
-    setAppliedCoupon(code);
+    const validationResult = validatePromotionForCart(code, subtotal, customer.Cus_id, {
+      activePromotionName: appliedCoupon?.Name ?? undefined,
+    });
+    if (validationResult.valid) {
+      setAppliedCoupon(code);
+    } else {
+      setAppliedCoupon(null);
+      alert(`Coupon invalid: ${validationResult.reason}`);
+    }
     setCouponInput(code?.Name ?? "");
   }
 
@@ -132,10 +117,7 @@ const CheckoutPage: React.FC = () => {
     });
   }
 
-  function handleDeliveryMethodChange(
-    shopId: string,
-    method: "standard" | "priority"
-  ) {
+  function handleDeliveryMethodChange(shopId: string, method: DeliveryType) {
     setDeliveryMethods((prev) => ({
       ...prev,
       [shopId]: method,
@@ -145,15 +127,15 @@ const CheckoutPage: React.FC = () => {
   // reset coin selection when key data changes
   useEffect(() => {
     setCoinAmount(0);
-  }, [orderId, customerId, appliedCoupon]);
+  }, [groupedByShop, customer.Cus_id, appliedCoupon]);
 
   // update delivery methods when cart changes
   useEffect(() => {
     setDeliveryMethods((prev) => {
-      const updated: Record<string, "standard" | "priority"> = {};
+      const updated: Record<string, DeliveryType> = {};
       const shops = [...new Set(cart.map((item) => item.product.shop_id))];
       shops.forEach((shopId) => {
-        updated[shopId] = prev[shopId] || "standard";
+        updated[shopId] = prev[shopId] || DeliveryType.STANDARD;
       });
       return updated;
     });
@@ -191,7 +173,7 @@ const CheckoutPage: React.FC = () => {
 
       {/* Cart items grouped by shop */}
       <div className="divide-y">
-        {Object.entries(groupedCartItems).map(([shopId, items]) => (
+        {Object.entries(groupedByShop).map(([shopId, items]) => (
           <div key={shopId} className="px-4 py-4">
             {/* Shop header */}
             <div className="mb-3 flex items-center gap-2">
@@ -213,7 +195,7 @@ const CheckoutPage: React.FC = () => {
                   <div className="h-16 w-16 flex-shrink-0 rounded-lg bg-gray-100" />
                   <div className="flex-1">
                     <div className="line-clamp-2 text-sm font-medium">
-                      {item.product.product_name}
+                      {item.product.product_name} × {item.quantity}
                     </div>
                     <div className="mt-1 text-rose-600">
                       {currency(item.product.price * item.quantity)}
@@ -234,9 +216,9 @@ const CheckoutPage: React.FC = () => {
                     type="radio"
                     name={`delivery-shop-${shopId}`}
                     value="standard"
-                    checked={deliveryMethods[shopId] === "standard"}
+                    checked={deliveryMethods[shopId] === DeliveryType.STANDARD}
                     onChange={() =>
-                      handleDeliveryMethodChange(shopId, "standard")
+                      handleDeliveryMethodChange(shopId, DeliveryType.STANDARD)
                     }
                     className="text-blue-600"
                   />
@@ -250,9 +232,9 @@ const CheckoutPage: React.FC = () => {
                     type="radio"
                     name={`delivery-shop-${shopId}`}
                     value="priority"
-                    checked={deliveryMethods[shopId] === "priority"}
+                    checked={deliveryMethods[shopId] === DeliveryType.PRIORITY}
                     onChange={() =>
-                      handleDeliveryMethodChange(shopId, "priority")
+                      handleDeliveryMethodChange(shopId, DeliveryType.PRIORITY)
                     }
                     className="text-blue-600"
                   />
@@ -263,7 +245,7 @@ const CheckoutPage: React.FC = () => {
                 </label>
                 <span className="text-xs text-gray-500">
                   Estimated delivery:{" "}
-                  {deliveryMethods[shopId] === "standard"
+                  {deliveryMethods[shopId] === DeliveryType.STANDARD
                     ? "3-5 days"
                     : "1-2 days"}
                 </span>
@@ -339,7 +321,7 @@ const CheckoutPage: React.FC = () => {
         <h2 className="text-lg font-semibold">Order Summary</h2>
         <div className="flex items-center justify-between text-sm">
           <span>Total Price Before Discount</span>
-          <span>{currency(totalBeforeDiscount)}</span>
+          <span>{currency(subtotal)}</span>
         </div>
         <div className="flex items-center justify-between text-sm">
           <span>Discount</span>
@@ -392,6 +374,9 @@ const CheckoutPage: React.FC = () => {
         <div className="space-y-2">
           <Link
             href="/order-summary"
+            onClick={() =>
+              logCouponUsage(customer.Cus_id, appliedCoupon!)
+            }
             className="w-full rounded-2xl bg-gray-600 py-3 text-center text-lg font-semibold text-white shadow-md hover:bg-gray-700 block"
           >
             View Order Summary
