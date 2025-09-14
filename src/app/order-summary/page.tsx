@@ -1,6 +1,10 @@
 "use client";
 
-import { DATA } from "@/data";
+import orders from "@/data/orders.json";
+import order_items from "@/data/order_items.json";
+import promotion_codes from "@/data/promotion_codes.json";
+import products from "@/data/products.json";
+import customers from "@/data/customers.json";
 import { Promotion_code_type } from "@/utils/enum/promotion_code_type";
 import { amountFromName, currency, DELIVERY_FEES } from "@/utils/helpers";
 import { useState, useMemo } from "react";
@@ -8,30 +12,30 @@ import Link from "next/link";
 import { PaymentSuccessModal } from "@/components/PaymentSuccessModal";
 
 const OrderSummaryPage: React.FC = () => {
-  const [orderId, setOrderId] = useState<string>(DATA.orders[0].Order_id);
+  const [orderId, setOrderId] = useState<string>(orders[0].Order_id);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState<boolean>(false);
   
   // Get order details
   const order = useMemo(() => 
-    DATA.orders.find(o => o.Order_id === orderId) || DATA.orders[0], 
+    orders.find(o => o.Order_id === orderId) || orders[0], 
     [orderId]
   );
   
   // Get customer details
   const customer = useMemo(() => 
-    DATA.customers.find(c => c.Cus_id === order.Cus_id) || DATA.customers[0], 
+    customers.find(c => c.Cus_id === order.Cus_id) || customers[0], 
     [order.Cus_id]
   );
   
   // Get order items
   const orderItems = useMemo(() => 
-    DATA.order_items.filter(item => item.Order_id === orderId), 
+    order_items.filter(item => item.Order_id === orderId), 
     [orderId]
   );
   
   // Get applied promotion code
   const appliedPromotion = useMemo(() => 
-    order.coupon ? DATA.promotion_codes.find(promo => promo.Name === order.coupon) : null, 
+    order.coupon ? promotion_codes.find(promo => promo.Name === order.coupon) : null, 
     [order.coupon]
   );
 
@@ -120,7 +124,7 @@ const OrderSummaryPage: React.FC = () => {
         <h3 className="text-lg font-semibold mb-3">Items Ordered</h3>
         <div className="space-y-3">
           {orderItems.map((item) => {
-            const product = DATA.products.find(p => p.product_id === item.Product_id);
+            const product = products.find(p => p.product_id === item.Product_id);
             return (
               <div key={item.OrderItem_id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                 <div className="h-16 w-16 flex-shrink-0 rounded-lg bg-gray-200 flex items-center justify-center">

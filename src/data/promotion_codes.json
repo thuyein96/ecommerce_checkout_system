@@ -5,6 +5,9 @@
     "Promotion_code_type": "percentage",
     "Min_spend": 100,
     "Max_discount": 50,
+    "Global_limit": 100,
+    "Eligible_products": ["P001", "P003", "P009"],
+    "Eligible_categories": ["C001", "C003"],
     "Start_date": "2024-01-01",
     "End_date": "2025-12-31",
     "Period": 365
@@ -14,6 +17,9 @@
     "Name": "HOLIDAY50",
     "Promotion_code_type": "fixed",
     "Min_spend": 200,
+    "Global_limit": 50,
+    "Eligible_products": ["P002", "P010", "P017"],
+    "Eligible_categories": ["C002", "C010"],
     "Start_date": "2024-11-01",
     "End_date": "2025-12-31",
     "Period": 61
@@ -23,6 +29,9 @@
     "Name": "FREESHIP",
     "Promotion_code_type": "free_delivery",
     "Min_spend": 0,
+    "Global_limit": 500,
+    "Eligible_products": ["P005", "P013"],
+    "Eligible_categories": ["C005"],
     "Start_date": "2024-06-01",
     "End_date": "2025-12-31",
     "Period": 92
@@ -33,6 +42,9 @@
     "Promotion_code_type": "percentage",
     "Min_spend": 150,
     "Max_discount": 30,
+    "Global_limit": 200,
+    "Eligible_products": ["P016", "P020", "P022"],
+    "Eligible_categories": ["C016", "C020"],
     "Start_date": "2024-06-15",
     "End_date": "2025-12-31",
     "Period": 92
@@ -42,6 +54,9 @@
     "Name": "WELCOME25",
     "Promotion_code_type": "fixed",
     "Min_spend": 0,
+    "Global_limit": 1000,
+    "Eligible_products": ["P001", "P002", "P005", "P012"],
+    "Eligible_categories": ["C001", "C012"],
     "Start_date": "2024-01-01",
     "End_date": "2025-12-31",
     "Period": 365
