@@ -1,7 +1,9 @@
-import { PromotionCode } from "@/models";
+import promotion_codes from "@/data/promotion_codes.json";
+import { Customer, PromotionCode } from "@/models";
 import { Promotion_code_type } from "@/utils/enum/promotion_code_type";
 import { amountFromName } from "@/utils/helpers";
-import promotion_codes from "@/data/promotion_codes.json";
+import { isCouponActive, normalizePointsToRedeem, pointsEarnedFrom, pointsToBaht } from "@/utils/loyalty";
+
 
 export type PromoValidationReason =
   | "invalid_format"
@@ -239,3 +241,72 @@ export function checkCouponUsage(customerId: string, promotion: PromotionCode) {
       return "ALLOW";
     }
   }
+
+  // New: selective active coupons for this customer
+export function getActiveCouponsForCustomer(
+  customer: Customer,
+  all: PromotionCode[],
+  now = new Date()
+) {
+  const assigned = new Set(customer.Promotion_codes);
+  return all.filter(c => assigned.has(c.PromotionCode_id) && isCouponActive(c, now));
+}
+
+export type FinalizeInput = {
+  customer: Customer;
+  appliedCoupon: PromotionCode | null;
+  subtotal: number;
+  effectiveDelivery: number;
+  discountAmount: number;     // from coupon
+  requestedPoints: number;    // user-entered POINTS (not baht)
+};
+
+export type FinalizeResult = {
+  updatedCustomer: Customer;
+  pointsSpent: number;
+  pointsDiscountBaht: number;
+  pointsEarned: number;
+  usedCouponId?: string;
+  finalTotal: number;
+};
+
+// Finalize the order: clamp points, compute earned points, remove coupon if used.
+export function finalizeCheckout({
+  customer,
+  appliedCoupon,
+  subtotal,
+  effectiveDelivery,
+  discountAmount,
+  requestedPoints,
+}: FinalizeInput): FinalizeResult {
+  const payableBeforePoints = Math.max(0, subtotal + effectiveDelivery - discountAmount);
+
+  const pointsToSpend = normalizePointsToRedeem(
+    requestedPoints,
+    customer.Loyal_points,
+    payableBeforePoints
+  );
+  const pointsDiscountBaht = pointsToBaht(pointsToSpend);
+  const finalTotal = Math.max(0, payableBeforePoints - pointsDiscountBaht);
+
+  const earned = pointsEarnedFrom(finalTotal); // ✅ compute earned points here
+
+  const usedCouponId = appliedCoupon?.PromotionCode_id;
+  const updatedCustomer: Customer = {
+    ...customer,
+    // ✅ subtract spent AND add earned
+    Loyal_points: Math.max(0, customer.Loyal_points - pointsToSpend + earned),
+    Promotion_codes: usedCouponId
+      ? customer.Promotion_codes.filter(id => id !== usedCouponId)
+      : customer.Promotion_codes,
+  };
+
+  return {
+    updatedCustomer,
+    pointsSpent: pointsToSpend,
+    pointsDiscountBaht,
+    pointsEarned: earned, // (optional for UI)
+    usedCouponId,
+    finalTotal,
+  };
+}

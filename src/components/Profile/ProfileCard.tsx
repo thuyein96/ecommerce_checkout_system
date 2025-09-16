@@ -2,7 +2,7 @@
 
 import type { Customer } from "@/models/customer";
 import type { PromotionCode } from "@/models/promotionCode";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
@@ -51,8 +51,23 @@ export default function ProfileCard({
         () => new Map(promotions.map(p => [p.PromotionCode_id, p])),
         [promotions]
     );
+    const [liveCustomer, setLiveCustomer] = useState(customer);
+    useEffect(() => {
+        const onStorage = (e: StorageEvent) => {
+            if (e.key === "demo_customer" && e.newValue) {
+                try {
+                    const parsed: Customer = JSON.parse(e.newValue);
+                    if (parsed?.Cus_id === customer.Cus_id) setLiveCustomer(parsed);
+                } catch { }
+            }
+        };
+        window.addEventListener("storage", onStorage);
+        return () => window.removeEventListener("storage", onStorage);
+    }, [customer.Cus_id]);
 
-    const customerPromos = customer.Promotion_codes
+
+    // then render with liveCustomer instead of customer:
+    const customerPromos = liveCustomer.Promotion_codes
         .map(code => promoMap.get(code))
         .filter((p): p is PromotionCode => Boolean(p));
 
@@ -61,9 +76,9 @@ export default function ProfileCard({
     return (
         <Card elevation={1} sx={{ borderRadius: 3 }}>
             <CardHeader
-                avatar={<Avatar sx={{ width: 56, height: 56 }}>{initials(customer.Cus_name)}</Avatar>}
-                title={<Typography variant="h6">{customer.Cus_name}</Typography>}
-                subheader={`ID: ${customer.Cus_id}`}
+                avatar={<Avatar sx={{ width: 56, height: 56 }}>{initials(liveCustomer.Cus_name)}</Avatar>}
+                title={<Typography variant="h6">{liveCustomer.Cus_name}</Typography>}
+                subheader={`ID: ${liveCustomer.Cus_id}`}
             />
             <Divider />
             <CardContent>
@@ -71,12 +86,12 @@ export default function ProfileCard({
                 <Box display="grid" gap={2} gridTemplateColumns={{ xs: "1fr", md: "1fr 1fr" }}>
                     <Stack spacing={0.5}>
                         <Typography variant="subtitle2" color="text.secondary">Address</Typography>
-                        <Typography variant="body2">{customer.Address}</Typography>
+                        <Typography variant="body2">{liveCustomer.Address}</Typography>
                     </Stack>
 
                     <Stack spacing={0.5}>
                         <Typography variant="subtitle2" color="text.secondary">Loyalty</Typography>
-                        <Typography variant="h5">{nf.format(customer.Loyal_points)} pts</Typography>
+                        <Typography variant="h5">{nf.format(liveCustomer.Loyal_points)} pts</Typography>
                         <Stack direction="row" spacing={1} flexWrap="wrap">
                             {promoTypes.length ? (
                                 promoTypes.map(t => (
@@ -91,8 +106,8 @@ export default function ProfileCard({
                     <Stack spacing={0.5}>
                         <Typography variant="subtitle2" color="text.secondary">Phone</Typography>
                         <Typography variant="body2">
-                            <a href={`tel:${customer.Phone}`} style={{ textDecoration: "none", color: "inherit" }}>
-                                {customer.Phone}
+                            <a href={`tel:${liveCustomer.Phone}`} style={{ textDecoration: "none", color: "inherit" }}>
+                                {liveCustomer.Phone}
                             </a>
                         </Typography>
                     </Stack>
@@ -100,8 +115,8 @@ export default function ProfileCard({
                     <Stack spacing={0.5}>
                         <Typography variant="subtitle2" color="text.secondary">Email</Typography>
                         <Typography variant="body2">
-                            <a href={`mailto:${customer.Email}`} style={{ textDecoration: "none", color: "inherit" }}>
-                                {customer.Email}
+                            <a href={`mailto:${liveCustomer.Email}`} style={{ textDecoration: "none", color: "inherit" }}>
+                                {liveCustomer.Email}
                             </a>
                         </Typography>
                     </Stack>
