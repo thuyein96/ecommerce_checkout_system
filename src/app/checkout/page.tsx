@@ -5,15 +5,18 @@ import customers from "@/data/customers.json";
 import promotion_codes from "@/data/promotion_codes.json";
 
 import { Customer, PromotionCode } from "@/models";
-import { currency, DELIVERY_FEES } from "@/utils/helpers";
 import { calculateDeliveryFees, calculateSubtotal } from "@/utils/checkout";
-import { useState, useMemo, useEffect } from "react";
-import Link from "next/link";
-import { useCart } from "../../context/CartContext";
 import { DeliveryType } from "@/utils/enum/delivery_types";
+import { currency, DELIVERY_FEES } from "@/utils/helpers";
+import { normalizePointsToRedeem, persistUpdatedCustomer, pointsEarnedFrom, pointsToBaht } from "@/utils/loyalty";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+import { useCart } from "../../context/CartContext";
 import {
   computeDiscountForCoupon,
   computeEffectiveDelivery,
+  finalizeCheckout, getActiveCouponsForCustomer,
   logCouponUsage,
   validatePromotionForCart,
 } from "../services/checkout.service";
@@ -21,6 +24,7 @@ import {
 const CheckoutPage: React.FC = () => {
   const [customer] = useState(customers[0] as Customer);
   const { cart } = useCart();
+  const router = useRouter();
 
   // Group cart items by shop for display
   const groupedByShop = useMemo(() => {
@@ -81,21 +85,32 @@ const CheckoutPage: React.FC = () => {
     [appliedCoupon, totalDeliveryFees]
   );
 
-  // coins that actually apply (bounded by customer balance and allowed amount)
-  const coinsToApply = useMemo(() => {
-    const maxByBalance = Math.max(0, customer?.Loyal_points ?? 0);
-    const allowedMax = Math.max(
-      0,
-      subtotal + effectiveDelivery - discountAmount
-    );
-    return Math.min(coinAmount, maxByBalance, allowedMax);
+  // points the user *can* actually spend (still stored as points)
+  const normalizedPoints = useMemo(() => {
+    const payableBeforePoints = Math.max(0, subtotal + effectiveDelivery - discountAmount);
+    return normalizePointsToRedeem(coinAmount, customer.Loyal_points, payableBeforePoints);
   }, [coinAmount, customer, subtotal, effectiveDelivery, discountAmount]);
+
+  const pointsDiscountBaht = useMemo(() => pointsToBaht(normalizedPoints), [normalizedPoints]);
 
   // final total
   const finalTotal = useMemo(() => {
-    const raw = subtotal + effectiveDelivery - discountAmount - coinsToApply;
+    const raw = subtotal + effectiveDelivery - discountAmount - pointsDiscountBaht;
     return Math.max(0, Number(raw.toFixed(2)));
-  }, [subtotal, effectiveDelivery, discountAmount, coinsToApply]);
+  }, [subtotal, effectiveDelivery, discountAmount, pointsDiscountBaht]);
+
+    // filter coupon dropdown to ACTIVE + ASSIGNED
+  const activeCoupons = useMemo(
+    () => getActiveCouponsForCustomer(customer, promotionCodes),
+    [customer, promotionCodes]
+  );
+
+    // If you prefer NOT to count shipping toward earnings, use this instead:
+  const pointsEarnedPreview = useMemo(
+    () => pointsEarnedFrom(Math.max(0, subtotal - discountAmount - pointsDiscountBaht)),
+    [subtotal, discountAmount, pointsDiscountBaht]
+  );
+
 
   // handlers update minimal state only
   function handleApplyCoupon(code: PromotionCode | null) {
@@ -111,15 +126,15 @@ const CheckoutPage: React.FC = () => {
     setCouponInput(code?.Name ?? "");
   }
 
-  function handleChangeCoins(delta: number) {
-    setCoinAmount((prev) => {
-      const next = prev + delta;
-      const maxBalance = Math.max(0, customer?.Loyal_points ?? 0);
-      if (next < 0) return 0;
-      if (next > maxBalance) return maxBalance;
-      return next;
-    });
-  }
+  function handleChangeCoins(step: number) {
+  setCoinAmount(prev => {
+    const next = prev + step * 10; // step is ±1 → ±10 points
+    const maxBalance = Math.max(0, customer?.Loyal_points ?? 0);
+    if (next < 0) return 0;
+    if (next > maxBalance) return maxBalance;
+    return next;
+  });
+}
 
   function handleDeliveryMethodChange(shopId: string, method: DeliveryType) {
     setDeliveryMethods((prev) => ({
@@ -276,14 +291,12 @@ const CheckoutPage: React.FC = () => {
               className="w-32 rounded-md border px-2 py-1 text-sm"
               value={couponInput}
               onChange={(e) => {
-                const selectedCode =
-                  promotionCodes.find((code) => code.Name === e.target.value) ||
-                  null;
-                handleApplyCoupon(selectedCode);
+                const selected = activeCoupons.find((c) => c.Name === e.target.value) || null;
+                handleApplyCoupon(selected);
               }}
             >
               <option value="">Select promo code</option>
-              {promotionCodes.map((code) => (
+              {activeCoupons.map((code) => (
                 <option key={code.Name} value={code.Name}>
                   {code.Name}
                 </option>
@@ -339,12 +352,18 @@ const CheckoutPage: React.FC = () => {
             {effectiveDelivery === 0 ? "Free" : currency(effectiveDelivery)}
           </span>
         </div>
-        {coinsToApply > 0 && (
+        {/* {coinsToApply > 0 && (
           <div className="flex items-center justify-between text-sm">
             <span>Coins Applied</span>
             <span className="text-rose-600">{`−${currency(
               coinsToApply
             )}`}</span>
+          </div>
+        )} */}
+        {normalizedPoints > 0 && (
+          <div className="flex items-center justify-between text-sm">
+            <span>Points Applied ({normalizedPoints} pts)</span>
+            <span className="text-rose-600">{`−${currency(pointsDiscountBaht)}`}</span>
           </div>
         )}
         <hr />
@@ -352,6 +371,11 @@ const CheckoutPage: React.FC = () => {
           <span>Total</span>
           <span>{currency(finalTotal)}</span>
         </div>
+        <div className="flex items-center justify-between text-sm">
+          <span>Points you’ll earn</span>
+          <span className="font-medium">{pointsEarnedPreview} pts</span>
+        </div>
+
 
         <div className="flex items-center gap-2 rounded-md bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
           <span>✔️</span>
@@ -370,7 +394,7 @@ const CheckoutPage: React.FC = () => {
       </div>
 
       {/* Footer total + CTA */}
-      <div className="sticky bottom-0 z-10 bg-white px-4 pb-4 pt-3 shadow-[0_-6px_12px_-4px_rgba(0,0,0,0.06)]">
+      {/* <div className="sticky bottom-0 z-10 bg-white px-4 pb-4 pt-3 shadow-[0_-6px_12px_-4px_rgba(0,0,0,0.06)]">
         <div className="mb-2 flex items-center justify-between text-sm">
           <span>Total</span>
           <span className="text-lg font-semibold">{currency(finalTotal)}</span>
@@ -386,7 +410,37 @@ const CheckoutPage: React.FC = () => {
             View Order Summary
           </Link>
         </div>
-      </div>
+      </div> */}
+      <button
+        onClick={() => {
+          const result = finalizeCheckout({
+            customer,
+            appliedCoupon,
+            subtotal,
+            effectiveDelivery,
+            discountAmount,
+            requestedPoints: coinAmount, // points
+          });
+
+          // persist for profile page to reflect immediately
+          persistUpdatedCustomer(result.updatedCustomer);
+
+          // optional: your existing logging
+          if (appliedCoupon) {
+            try { logCouponUsage(customer.Cus_id, appliedCoupon); } catch { }
+          }
+
+          // show a quick toast/alert if you want
+          // alert(`Final: ฿${result.finalTotal}, Spent ${result.pointsSpent} pts, Earned ${result.pointsEarned} pts`);
+
+          // go to order summary
+          router.push("/order-summary");
+        }}
+        className="w-full rounded-2xl bg-gray-600 py-3 text-center text-lg font-semibold text-white shadow-md hover:bg-gray-700"
+      >
+        Confirm & Pay
+      </button>
+
     </div>
   );
 };
