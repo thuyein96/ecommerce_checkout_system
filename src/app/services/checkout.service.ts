@@ -1,7 +1,8 @@
 import { PromotionCode } from "@/models";
 import { Promotion_code_type } from "@/utils/enum/promotion_code_type";
-import { amountFromName } from "@/utils/helpers";
-import promotion_codes from "@/data/promotion_codes.json";
+import { extractAmountFromCode } from "@/utils/helpers";
+import { isNotEligibleForCategory, isNotEligibleForProduct, isExceededGlobalLimit, isExceededUserLimit, isFormatIncorrect, isNotExist } from "./checkout.helper";
+import { CartItem } from "@/context/CartContext";
 
 export type PromoValidationReason =
   | "invalid_format"
@@ -11,8 +12,7 @@ export type PromoValidationReason =
   | "conflict_with_active_coupon"
   | "exceeded_usage_limit"
   | "exceeded_global_limit"
-  | "not_eligible_product"
-  | "not_eligible_category"
+  | "not_eligible"
   | "min_spend_not_met"
   | "unknown";
 
@@ -24,6 +24,20 @@ export interface PromoValidationResult {
   promotionName?: string;
 }
 
+  let cartProductIds: string[] = [];
+  let cartProductCategories: string[] = [];
+  try {
+    const cartRaw = localStorage.getItem("cart");
+    if (cartRaw) {
+      const cart = JSON.parse(cartRaw) as CartItem[];
+      cartProductIds = cart.map((item) => item.product.product_id);
+      cartProductCategories = cart.map((item) => item.product.product_category);
+    }
+  } catch {
+    cartProductIds = [];
+    cartProductCategories = [];
+  }
+  
 // helpers to compute discount and effective delivery
 export function computeDiscountForCoupon(
   coupon: PromotionCode | null,
@@ -32,11 +46,11 @@ export function computeDiscountForCoupon(
   if (!coupon) return 0;
   // date validation intentionally omitted here (keeps original behaviour)
   if (coupon.Promotion_code_type === Promotion_code_type.Percentage) {
-    const pct = amountFromName(coupon.Name) / 100;
+    const pct = extractAmountFromCode(coupon.Name) / 100;
     return subtotalAmount * pct;
   }
   if (coupon.Promotion_code_type === Promotion_code_type.Fixed) {
-    return amountFromName(coupon.Name);
+    return extractAmountFromCode(coupon.Name);
   }
   // Free delivery -> no discount on price; handled by effectiveDelivery
   return 0;
@@ -66,176 +80,73 @@ export function logCouponUsage(customerId: string, coupon: PromotionCode) {
   localStorage.setItem("couponGlobalUsage", JSON.stringify(counters));
 }
 
-export function validatePromotionForCart(
-  promotion: PromotionCode | null,
-  subtotal: number,
-  customerId: string,
-  options?: { now?: Date; activePromotionName?: string }
+export function validatePromotionForCart(promotion: PromotionCode | null, subtotal: number,
+  customerId: string, options?: { now?: Date; activePromotionName?: string }
 ): PromoValidationResult {
-  // options.cartProductIds: optional array of product ids present in the cart
-  const cartItems = localStorage.getItem("cart");
-  const cartProductIds = cartItems
-    ? JSON.parse(cartItems).map(
-        (item: { product: { product_id: string } }) => item.product.product_id
-      )
-    : [];
-  // also collect product categories from cart if available
-  const cartProductCategories = cartItems
-    ? JSON.parse(cartItems).map(
-        (item: { product: { product_category?: string } }) => item.product.product_category
-      ).filter(Boolean)
-    : [];
   const now = options?.now ?? new Date();
+  const end = new Date(promotion?.End_date || 0);
 
   if (!promotion) {
     return { valid: false, reason: "not_found", discountAmount: 0, freeDelivery: false };
   }
 
-  if(promotion_codes.findIndex(p => p.PromotionCode_id === promotion.PromotionCode_id) === -1) {
+  if (isNotExist(promotion)) {
     return { valid: false, reason: "invalid_code", discountAmount: 0, freeDelivery: false };
   }
 
-  // check if customer has used this coupon before
-  if (checkCouponUsage(customerId, promotion) === "NOT_ALLOW") {
+  const userUsageLogs = localStorage.getItem("couponlogs") || "";
+  if (isExceededUserLimit(promotion, customerId, userUsageLogs)) {
     return { valid: false, reason: "exceeded_usage_limit", discountAmount: 0, freeDelivery: false };
   }
 
-  if (typeof promotion.Global_limit === "number") {
-    if (checkGlobalUsage(promotion) === "NOT_ALLOW") {
+  const globalUsageLogs = localStorage.getItem("couponGlobalUsage") || "";
+  if (isExceededGlobalLimit(promotion, globalUsageLogs)) {
       return { valid: false, reason: "exceeded_global_limit", discountAmount: 0, freeDelivery: false };
-    }
   }
 
-  const name = promotion.Name ?? "";
   // format rule: only uppercase letters & digits and optional Ccap tokens
-  if (!/^[A-Z0-9C]+$/.test(name)) {
+  if (isFormatIncorrect(promotion.Name)) {
     return { valid: false, reason: "invalid_format", discountAmount: 0, freeDelivery: false };
   }
 
-  if (options?.activePromotionName && options.activePromotionName === promotion.Name) {
+  if (options?.activePromotionName) {
     return { valid: false, reason: "conflict_with_active_coupon", discountAmount: 0, freeDelivery: false };
   }
 
-  const start = new Date(promotion.Start_date);
-  const end = new Date(promotion.End_date);
-  console.log("Promotion validity period:", start, end, "Now:", now);
-  if (now < start || now > end) {
-    return { valid: false, reason: "expired", discountAmount: 0, freeDelivery: false, promotionName: promotion.Name };
+  if (now > end) {
+    return { valid: false, reason: "expired", discountAmount: 0, freeDelivery: false, 
+      promotionName: promotion.Name };
   }
 
-  // enforce minimum spend if present on the promotion
   if (typeof promotion.Min_spend === "number" && subtotal < promotion.Min_spend) {
-    return { valid: false, reason: "min_spend_not_met", discountAmount: 0, freeDelivery: false, promotionName: promotion.Name };
+    return { valid: false, reason: "min_spend_not_met", discountAmount: 0, freeDelivery: false, 
+      promotionName: promotion.Name };
   }
 
-  // enforce eligible products if the promotion specifies Eligible_products
-  // enforce eligible products/categories: allow match by product OR category
-  const hasProductRestrictions = Array.isArray(promotion.Eligible_products) && promotion.Eligible_products.length > 0;
-  const hasCategoryRestrictions = Array.isArray(promotion.Eligible_categories) && promotion.Eligible_categories.length > 0;
-  if (hasProductRestrictions || hasCategoryRestrictions) {
-    // if we have no cart info at all, cannot determine eligibility
-    if (
-      (!Array.isArray(cartProductIds) || cartProductIds.length === 0) &&
-      (!Array.isArray(cartProductCategories) ||
-        cartProductCategories.length === 0)
-    ) {
-      // prefer product reason when products are defined, else category
-      const reason = hasProductRestrictions
-        ? "not_eligible_product"
-        : "not_eligible_category";
-      return {
-        valid: false,
-        reason,
-        discountAmount: 0,
-        freeDelivery: false,
-        promotionName: promotion.Name,
-      };
-    }
-
-    let hasEligibleProduct = false;
-    let hasEligibleCategory = false;
-
-    if (hasProductRestrictions) {
-      const eligibleProductsSet = new Set(promotion.Eligible_products);
-      hasEligibleProduct = Array.isArray(cartProductIds) && cartProductIds.some(id => eligibleProductsSet.has(id));
-    }
-
-    if (hasCategoryRestrictions) {
-      const eligibleCategoriesSet = new Set(promotion.Eligible_categories);
-      hasEligibleCategory = Array.isArray(cartProductCategories) && cartProductCategories.some(cat => eligibleCategoriesSet.has(cat));
-    }
-
-    // require at least one match (product OR category)
-    if (!hasEligibleProduct && !hasEligibleCategory) {
-      // pick a reason depending on which restriction exists
-      const reason =
-        hasProductRestrictions && !hasCategoryRestrictions
-          ? "not_eligible_product"
-          : hasCategoryRestrictions && !hasProductRestrictions
-          ? "not_eligible_category"
-          : "not_eligible_product";
-      return { valid: false, reason, discountAmount: 0, freeDelivery: false, promotionName: promotion.Name };
-    }
+  if (isNotEligibleForProduct(promotion, cartProductIds) && 
+  isNotEligibleForCategory(promotion, cartProductCategories)) {
+    return { valid: false, reason: "not_eligible", discountAmount: 0, freeDelivery: false, 
+      promotionName: promotion.Name };
   }
 
-  // compute based on type
-  const type = promotion.Promotion_code_type;
-  if (type === Promotion_code_type.Free_delivery) {
+  if (promotion.Promotion_code_type === Promotion_code_type.Free_delivery) {
     return { valid: true, discountAmount: 0, freeDelivery: true, promotionName: promotion.Name };
   }
 
-  if (type === Promotion_code_type.Fixed) {
-    const amt = amountFromName(name);
+  if (promotion.Promotion_code_type === Promotion_code_type.Fixed) {
+    const amt = extractAmountFromCode(promotion.Name);
     const applied = Math.max(0, Math.min(subtotal, Number(amt || 0)));
-    return { valid: true, discountAmount: Number(applied.toFixed(2)), freeDelivery: false, promotionName: promotion.Name };
+    return { valid: true, discountAmount: Number(applied.toFixed(2)), freeDelivery: false, 
+      promotionName: promotion.Name };
   }
 
-  if (type === Promotion_code_type.Percentage) {
-    const pct = amountFromName(name);
-    const raw = (subtotal * (pct / 100));
-    // optional cap: parse C<number>
-    const capMatch = name.match(/C(\d+)/);
-    const cap = capMatch ? Number(capMatch[1]) : undefined;
-    let discount = raw;
-    if (cap !== undefined) discount = Math.min(discount, cap);
-    discount = Math.min(discount, subtotal);
-    return { valid: true, discountAmount: Number(discount.toFixed(2)), freeDelivery: false, promotionName: promotion.Name };
+  if (promotion.Promotion_code_type === Promotion_code_type.Percentage) {
+    const pct = extractAmountFromCode(promotion.Name);
+    const discountAmount = (subtotal * (pct / 100));
+
+    const afterDiscount = Math.min(discountAmount, subtotal);
+    return { valid: true, discountAmount: afterDiscount, freeDelivery: false, promotionName: promotion.Name };
   }
 
   return { valid: false, reason: "unknown", discountAmount: 0, freeDelivery: false };
 }
-
-export function checkCouponUsage(customerId: string, promotion: PromotionCode) {
-  try {
-    if (typeof localStorage === "undefined") return true;
-    const couponLogs = localStorage.getItem("couponlogs");
-    if (couponLogs) {
-      const logs = JSON.parse(couponLogs);
-      const customerLogs = logs[customerId] || [];
-      const usedCoupon = customerLogs.find((log: { coupon: string; }) => log.coupon === promotion.PromotionCode_id);
-      if (!usedCoupon) {
-        return "ALLOW";
-      }
-      return "NOT_ALLOW";
-    }
-    return "ALLOW";
-  } catch {
-    // if localStorage is not available (server-side tests), allow usage
-    return "ALLOW";
-  }
-}
-
-  export function checkGlobalUsage(promotion: PromotionCode) {
-    try {
-      if (typeof localStorage === "undefined") return "ALLOW";
-      const raw = localStorage.getItem("couponGlobalUsage");
-      const counters = raw ? JSON.parse(raw) : {};
-      const used = counters[promotion.PromotionCode_id] || 0;
-      if (typeof promotion.Global_limit === "number" && used >= promotion.Global_limit) {
-        return "NOT_ALLOW";
-      }
-      return "ALLOW";
-    } catch {
-      return "ALLOW";
-    }
-  }

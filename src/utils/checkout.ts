@@ -43,3 +43,24 @@ export const calculateSubtotal = (cartItems: CartItem[]): number => {
     0
   );
 };
+
+/**
+ * Compute final price given subtotal, coupon discount, redeem (coins), and delivery fee.
+ * - Caps coupon at subtotal
+ * - Caps redeem at remaining subtotal after coupon
+ * - Ensures total is not negative
+ */
+export const computeFinalPrice = (
+  subtotal: number,
+  coupon: number,
+  redeem: number,
+  delivery: number
+): number => {
+  const safeSubtotal = Math.max(0, subtotal);
+  const safeDelivery = Math.max(0, delivery);
+  const appliedCoupon = Math.max(0, Math.min(coupon, safeSubtotal));
+  const remainingAfterCoupon = safeSubtotal - appliedCoupon;
+  const appliedRedeem = Math.max(0, Math.min(redeem, remainingAfterCoupon));
+  const raw = remainingAfterCoupon - appliedRedeem + safeDelivery;
+  return Math.max(0, Number(raw.toFixed(2)));
+};

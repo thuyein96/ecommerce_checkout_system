@@ -6,7 +6,7 @@ import promotion_codes from "@/data/promotion_codes.json";
 
 import { Customer, PromotionCode } from "@/models";
 import { currency, DELIVERY_FEES } from "@/utils/helpers";
-import { calculateDeliveryFees, calculateSubtotal } from "@/utils/checkout";
+import { calculateDeliveryFees, calculateSubtotal, computeFinalPrice } from "@/utils/checkout";
 import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import { useCart } from "../../context/CartContext";
@@ -92,9 +92,9 @@ const CheckoutPage: React.FC = () => {
   }, [coinAmount, customer, subtotal, effectiveDelivery, discountAmount]);
 
   // final total
-  const finalTotal = useMemo(() => {
-    const raw = subtotal + effectiveDelivery - discountAmount - coinsToApply;
-    return Math.max(0, Number(raw.toFixed(2)));
+  const calculatedFinalPrice = useMemo(() => {
+    const finalPrice = computeFinalPrice(subtotal, discountAmount, coinsToApply, effectiveDelivery);
+    return finalPrice;
   }, [subtotal, effectiveDelivery, discountAmount, coinsToApply]);
 
   // handlers update minimal state only
@@ -350,7 +350,7 @@ const CheckoutPage: React.FC = () => {
         <hr />
         <div className="flex items-center justify-between text-lg font-bold">
           <span>Total</span>
-          <span>{currency(finalTotal)}</span>
+          <span>{currency(calculatedFinalPrice)}</span>
         </div>
 
         <div className="flex items-center gap-2 rounded-md bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
@@ -373,7 +373,7 @@ const CheckoutPage: React.FC = () => {
       <div className="sticky bottom-0 z-10 bg-white px-4 pb-4 pt-3 shadow-[0_-6px_12px_-4px_rgba(0,0,0,0.06)]">
         <div className="mb-2 flex items-center justify-between text-sm">
           <span>Total</span>
-          <span className="text-lg font-semibold">{currency(finalTotal)}</span>
+          <span className="text-lg font-semibold">{currency(calculatedFinalPrice)}</span>
         </div>
         <div className="space-y-2">
           <Link
