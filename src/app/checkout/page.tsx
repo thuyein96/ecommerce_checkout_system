@@ -13,6 +13,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useCart } from "../../context/CartContext";
+import { useOrder } from "../../context/OrderContext";
 import {
   computeDiscountForCoupon,
   computeEffectiveDelivery,
@@ -24,6 +25,7 @@ import {
 const CheckoutPage: React.FC = () => {
   const [customer] = useState(customers[0] as Customer);
   const { cart } = useCart();
+  const { setCurrentOrder } = useOrder();
   const router = useRouter();
 
   // Group cart items by shop for display
@@ -99,13 +101,13 @@ const CheckoutPage: React.FC = () => {
     return Math.max(0, Number(raw.toFixed(2)));
   }, [subtotal, effectiveDelivery, discountAmount, pointsDiscountBaht]);
 
-    // filter coupon dropdown to ACTIVE + ASSIGNED
+  // filter coupon dropdown to ACTIVE + ASSIGNED
   const activeCoupons = useMemo(
     () => getActiveCouponsForCustomer(customer, promotionCodes),
     [customer, promotionCodes]
   );
 
-    // If you prefer NOT to count shipping toward earnings, use this instead:
+  // If you prefer NOT to count shipping toward earnings, use this instead:
   const pointsEarnedPreview = useMemo(
     () => pointsEarnedFrom(Math.max(0, subtotal - discountAmount - pointsDiscountBaht)),
     [subtotal, discountAmount, pointsDiscountBaht]
@@ -127,14 +129,14 @@ const CheckoutPage: React.FC = () => {
   }
 
   function handleChangeCoins(step: number) {
-  setCoinAmount(prev => {
-    const next = prev + step * 10; // step is ±1 → ±10 points
-    const maxBalance = Math.max(0, customer?.Loyal_points ?? 0);
-    if (next < 0) return 0;
-    if (next > maxBalance) return maxBalance;
-    return next;
-  });
-}
+    setCoinAmount(prev => {
+      const next = prev + step * 10; // step is ±1 → ±10 points
+      const maxBalance = Math.max(0, customer?.Loyal_points ?? 0);
+      if (next < 0) return 0;
+      if (next > maxBalance) return maxBalance;
+      return next;
+    });
+  }
 
   function handleDeliveryMethodChange(shopId: string, method: DeliveryType) {
     setDeliveryMethods((prev) => ({
@@ -425,7 +427,25 @@ const CheckoutPage: React.FC = () => {
           // persist for profile page to reflect immediately
           persistUpdatedCustomer(result.updatedCustomer);
 
-          // optional: your existing logging
+          // Store order data for order summary page using OrderContext
+          const orderData = {
+            orderId: `ORD-${Date.now()}`, // Generate a unique order ID
+            customer,
+            shopGroups: groupedByShop, // Use pre-grouped data instead of raw cart
+            deliveryMethods,
+            appliedCoupon,
+            subtotal,
+            totalDeliveryFees,
+            effectiveDelivery,
+            discountAmount,
+            pointsUsed: normalizedPoints,
+            pointsDiscountBaht,
+            finalTotal,
+            pointsEarned: pointsEarnedPreview,
+            orderDate: new Date().toISOString(),
+          };
+
+          setCurrentOrder(orderData);
           if (appliedCoupon) {
             try { logCouponUsage(customer.Cus_id, appliedCoupon); } catch { }
           }
