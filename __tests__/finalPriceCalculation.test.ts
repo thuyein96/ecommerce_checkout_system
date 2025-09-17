@@ -37,7 +37,6 @@ const createTestPromotion = (
 
 describe("Final Price Calculation", () => {
     test("Test Case 1: Basic calculation with all components (1000 - 100 - 20 + 50 = 930)", () => {
-      // Arrange
       const subtotal = 1000;
       const discountAmount = 100; // 10% discount from a coupon
       const effectiveDelivery = 50;
@@ -65,7 +64,6 @@ describe("Final Price Calculation", () => {
     });
 
     test("Test Case 2: Zero values don't affect calculation (500 - 0 - 0 + 0 = 500)", () => {
-      // Arrange
       const subtotal = 500;
       const discountAmount = 0; // No coupon
       const effectiveDelivery = 0; // Free delivery 
@@ -90,7 +88,6 @@ describe("Final Price Calculation", () => {
     });
 
     test("Test Case 3: Fixed amount discount coupon (800 - 150 - 10 + 30 = 670)", () => {
-      // Arrange
       const subtotal = 800;
       const discountAmount = 150; // Fixed 150 baht discount
       const effectiveDelivery = 30;
@@ -117,7 +114,6 @@ describe("Final Price Calculation", () => {
     });
 
     test("Test Case 4: Free delivery promotion (600 - 0 - 5 + 0 = 595)", () => {
-      // Arrange
       const subtotal = 600;
       const discountAmount = 0; // No price discount from free delivery promo
       const effectiveDelivery = 0; // Free delivery from promotion
@@ -144,7 +140,6 @@ describe("Final Price Calculation", () => {
     });
 
     test("Test Case 5: Large points redemption with capping", () => {
-      // Arrange
       const subtotal = 2000;
       const discountAmount = 200; // 10% discount
       const effectiveDelivery = 100;
@@ -176,7 +171,6 @@ describe("Final Price Calculation", () => {
     });
 
     test("Test Case 6: Order of operations: Subtotal → Promotions → Redeem → Delivery (1500 - 300 - 100 + 75 = 1175)", () => {
-      // Arrange
       const subtotal = 1500;
       const discountAmount = 300; // 20% discount
       const effectiveDelivery = 75;
@@ -218,7 +212,6 @@ describe("Final Price Calculation", () => {
     });
 
     test("Test Case 7: Edge case - total becomes zero (100 - 90 - 20 + 10 = 0)", () => {
-      // Arrange
       const subtotal = 100;
       const discountAmount = 90; // 90% discount
       const effectiveDelivery = 10;
@@ -244,7 +237,6 @@ describe("Final Price Calculation", () => {
     });
 
     test("Test Case 8: Points adjustment is rounded correctly to multiples of 10 (123→120 points)", () => {
-      // Arrange
       const subtotal = 123.45;
       const discountAmount = 23.45; 
       const effectiveDelivery = 19;
@@ -277,7 +269,6 @@ describe("Final Price Calculation", () => {
   
   describe("Loyalty Points Updates", () => {
     test("Test Case 9: Loyalty points balance updated correctly: 1000 - 500 (spent) + 10 (earned) = 510", () => {
-      // Arrange
       const subtotal = 1000;
       const discountAmount = 0; 
       const effectiveDelivery = 50;
@@ -311,7 +302,6 @@ describe("Final Price Calculation", () => {
     });
 
     test("Test Case 10: Promotion code is removed from customer's available promotions after use", () => {
-      // Arrange
       const promotionId = "TEST_PROMO";
       const initialPromotionCodes = [promotionId, "OTHER_PROMO"];
       
