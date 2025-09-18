@@ -6,13 +6,13 @@
     "shop_id": "SHOP001",
     "image": "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=400&q=80",
     "review": 4.5,
-    "instock_Quantity": 25,
+    "instock_Quantity": 22,
     "product_category": "Electronics"
   },
   {
     "product_id": "P002",
     "product_name": "Nike Air Max 270",
-    "price": 150.0,
+    "price": 150,
     "shop_id": "SHOP002",
     "image": "https://images.unsplash.com/photo-1519864600265-abb23847ef2c?auto=format&fit=crop&w=400&q=80",
     "review": 4.2,
@@ -92,7 +92,7 @@
   {
     "product_id": "P010",
     "product_name": "Adidas Ultraboost 22",
-    "price": 180.0,
+    "price": 180,
     "shop_id": "SHOP002",
     "image": "https://images.unsplash.com/photo-1544966503-7cc5ac882d5f?auto=format&fit=crop&w=400&q=80",
     "review": 4.4,
@@ -112,7 +112,7 @@
   {
     "product_id": "P012",
     "product_name": "Ralph Lauren Polo Shirt",
-    "price": 85.0,
+    "price": 85,
     "shop_id": "SHOP003",
     "image": "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=400&q=80",
     "review": 4.2,
@@ -162,7 +162,7 @@
   {
     "product_id": "P017",
     "product_name": "Vans Old Skool Sneakers",
-    "price": 65.0,
+    "price": 65,
     "shop_id": "SHOP002",
     "image": "https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?auto=format&fit=crop&w=400&q=80",
     "review": 4.3,
@@ -182,7 +182,7 @@
   {
     "product_id": "P019",
     "product_name": "Patagonia Fleece Jacket",
-    "price": 129.0,
+    "price": 129,
     "shop_id": "SHOP003",
     "image": "https://images.unsplash.com/photo-1551537482-f2075a1d41f2?auto=format&fit=crop&w=400&q=80",
     "review": 4.4,
@@ -222,7 +222,7 @@
   {
     "product_id": "P023",
     "product_name": "Allbirds Tree Runners",
-    "price": 98.0,
+    "price": 98,
     "shop_id": "SHOP002",
     "image": "https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=400&q=80",
     "review": 4.2,
@@ -242,7 +242,7 @@
   {
     "product_id": "P025",
     "product_name": "Champion Reverse Weave Hoodie",
-    "price": 75.0,
+    "price": 75,
     "shop_id": "SHOP003",
     "image": "https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=400&q=80",
     "review": 4.1,
@@ -282,10 +282,10 @@
   {
     "product_id": "P029",
     "product_name": "Converse Chuck Taylor All Star",
-    "price": 55.0,
+    "price": 55,
     "shop_id": "SHOP002",
     "image": "https://images.unsplash.com/photo-1514989940723-e8e51635b782?auto=format&fit=crop&w=400&q=80",
-    "review": 4.0,
+    "review": 4,
     "instock_Quantity": 110,
     "product_category": "Footwear"
   },
@@ -342,7 +342,7 @@
   {
     "product_id": "P035",
     "product_name": "Dr. Martens 1460 Boots",
-    "price": 170.0,
+    "price": 170,
     "shop_id": "SHOP002",
     "image": "https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=400&q=80",
     "review": 4.5,
@@ -362,7 +362,7 @@
   {
     "product_id": "P037",
     "product_name": "North Face Puffer Jacket",
-    "price": 220.0,
+    "price": 220,
     "shop_id": "SHOP003",
     "image": "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?auto=format&fit=crop&w=400&q=80",
     "review": 4.7,

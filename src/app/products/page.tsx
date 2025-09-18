@@ -1,10 +1,39 @@
-import React from "react";
+"use client";
+import React, { useEffect, useState } from "react";
 import ProductCard from "../../components/ProductCard";
-
-import products from "../../data/products.json";
+import { getCurrentProductsData } from "../../utils/checkout";
+import { Product } from "../../models/product";
 import Link from "next/link";
 
 const ProductsPage = () => {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        const productsData = await getCurrentProductsData();
+        setProducts(productsData);
+      } catch (error) {
+        console.error("Failed to load products:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProducts();
+  }, []);
+
+  if (loading) {
+    return (
+      <main style={{ padding: "32px" }}>
+        <div className="flex items-center justify-center">
+          <div className="text-lg">Loading products...</div>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main style={{ padding: "32px" }}>
       <div className="flex items-center mb-8 gap-4">

@@ -6,10 +6,12 @@ import { PaymentSuccessModal } from "@/components/PaymentSuccessModal";
 import { currency } from "@/utils/helpers";
 import { DeliveryType } from "@/utils/enum/delivery_types";
 import { useOrder } from "@/context/OrderContext";
+import { useCart } from "@/context/CartContext";
 
 const OrderSummaryPage: React.FC = () => {
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState<boolean>(false);
   const { currentOrder: orderData, clearCurrentOrder } = useOrder();
+  const { clearCart } = useCart();
 
   // If no order data, redirect to checkout
   if (!orderData) {
@@ -17,7 +19,9 @@ const OrderSummaryPage: React.FC = () => {
       <div className="mx-auto max-w-2xl bg-white text-gray-900 min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-xl font-semibold mb-4">No Order Found</h2>
-          <p className="text-gray-600 mb-6">Please complete your checkout first.</p>
+          <p className="text-gray-600 mb-6">
+            Please complete your checkout first.
+          </p>
           <Link
             href="/checkout"
             className="bg-blue-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors"
@@ -42,12 +46,17 @@ const OrderSummaryPage: React.FC = () => {
     pointsDiscountBaht,
     finalTotal,
     pointsEarned,
-    orderDate
-  } = orderData; return (
+    orderDate,
+  } = orderData;
+  return (
     <div className="mx-auto max-w-2xl bg-white text-gray-900 min-h-screen">
       {/* Header */}
       <div className="sticky top-0 z-10 flex items-center gap-3 border-b bg-white/90 px-4 py-3 backdrop-blur">
-        <Link href="/checkout" className="rounded-full p-2 hover:bg-gray-100" aria-label="Back">
+        <Link
+          href="/checkout"
+          className="rounded-full p-2 hover:bg-gray-100"
+          aria-label="Back"
+        >
           ←
         </Link>
         <h1 className="text-xl font-semibold">Order Summary</h1>
@@ -56,7 +65,9 @@ const OrderSummaryPage: React.FC = () => {
       {/* Order Information */}
       <div className="px-4 py-4 border-b">
         <div className="mb-4">
-          <h2 className="text-lg font-semibold text-gray-900 mb-2">Order Details</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-2">
+            Order Details
+          </h2>
           <div className="bg-gray-50 rounded-lg p-3 space-y-2">
             <div className="flex justify-between">
               <span className="text-sm text-gray-600">Order ID:</span>
@@ -68,7 +79,9 @@ const OrderSummaryPage: React.FC = () => {
             </div>
             <div className="flex justify-between">
               <span className="text-sm text-gray-600">Delivery Address:</span>
-              <span className="text-sm font-medium text-right">{customer.Address}</span>
+              <span className="text-sm font-medium text-right">
+                {customer.Address}
+              </span>
             </div>
             <div className="flex justify-between">
               <span className="text-sm text-gray-600">Order Date:</span>
@@ -79,7 +92,9 @@ const OrderSummaryPage: React.FC = () => {
             {appliedCoupon && (
               <div className="flex justify-between">
                 <span className="text-sm text-gray-600">Promo Code:</span>
-                <span className="text-sm font-medium text-green-600">{appliedCoupon.Name}</span>
+                <span className="text-sm font-medium text-green-600">
+                  {appliedCoupon.Name}
+                </span>
               </div>
             )}
           </div>
@@ -97,12 +112,18 @@ const OrderSummaryPage: React.FC = () => {
                   🏪 Shop {shopId}
                 </h4>
                 <span className="text-sm text-gray-600 bg-white px-2 py-1 rounded">
-                  {deliveryMethods[shopId] === DeliveryType.STANDARD ? 'Standard' : 'Priority'} Delivery
+                  {deliveryMethods[shopId] === DeliveryType.STANDARD
+                    ? "Standard"
+                    : "Priority"}{" "}
+                  Delivery
                 </span>
               </div>
               <div className="space-y-3">
                 {items.map((item) => (
-                  <div key={item.product.product_id} className="flex items-center gap-3 p-3 bg-white rounded-lg">
+                  <div
+                    key={item.product.product_id}
+                    className="flex items-center gap-3 p-3 bg-white rounded-lg"
+                  >
                     <img
                       src={item.product.image}
                       alt={item.product.product_name}
@@ -165,7 +186,9 @@ const OrderSummaryPage: React.FC = () => {
 
           {pointsUsed > 0 && (
             <div className="flex justify-between items-center">
-              <span className="text-gray-600">Loyalty Points Used ({pointsUsed} pts)</span>
+              <span className="text-gray-600">
+                Loyalty Points Used ({pointsUsed} pts)
+              </span>
               <span className="font-medium text-green-600">
                 -{currency(pointsDiscountBaht)}
               </span>
@@ -188,10 +211,12 @@ const OrderSummaryPage: React.FC = () => {
           <div className="bg-green-50 border border-green-200 rounded-lg p-3">
             <div className="flex items-center gap-2 mb-2">
               <span className="text-green-600">✓</span>
-              <span className="font-medium text-green-800">{appliedCoupon.Name}</span>
+              <span className="font-medium text-green-800">
+                {appliedCoupon.Name}
+              </span>
             </div>
             <p className="text-sm text-green-700">
-              Type: {appliedCoupon.Promotion_code_type.replace('_', ' ')}
+              Type: {appliedCoupon.Promotion_code_type.replace("_", " ")}
             </p>
             <p className="text-xs text-green-600 mt-1">
               Valid: {appliedCoupon.Start_date} to {appliedCoupon.End_date}
@@ -206,11 +231,15 @@ const OrderSummaryPage: React.FC = () => {
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
           <div className="flex justify-between items-center mb-2">
             <span className="text-blue-700">Points Used in This Order:</span>
-            <span className="font-medium text-blue-800">{pointsUsed} coins</span>
+            <span className="font-medium text-blue-800">
+              {pointsUsed} coins
+            </span>
           </div>
           <div className="flex justify-between items-center">
             <span className="text-blue-700">Points You&apos;ll Earn:</span>
-            <span className="font-medium text-blue-800">{pointsEarned} coins</span>
+            <span className="font-medium text-blue-800">
+              {pointsEarned} coins
+            </span>
           </div>
         </div>
       </div>
@@ -249,6 +278,17 @@ const OrderSummaryPage: React.FC = () => {
         }}
         orderTotal={currency(finalTotal)}
         orderId={orderId}
+        customer={customer}
+        appliedCoupon={appliedCoupon}
+        subtotal={subtotal}
+        effectiveDelivery={effectiveDelivery}
+        discountAmount={discountAmount}
+        requestedPoints={pointsUsed}
+        cartItems={Object.values(shopGroups).flat()}
+        onPaymentComplete={() => {
+          // Clear the cart after successful payment processing
+          clearCart();
+        }}
       />
     </div>
   );
