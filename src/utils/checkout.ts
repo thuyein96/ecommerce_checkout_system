@@ -12,22 +12,25 @@ export const calculateDeliveryFees = (
   deliveryMethods: Record<string, "standard" | "priority">
 ) => {
   // Group items by shop
-  const shopGroups = cartItems.reduce((groups, item) => {
+  const shopGroups: Record<string, CartItem[]> = {};
+  for (let i = 0; i < cartItems.length; i++) {
+    const item = cartItems[i];
     const shopId = item.product.shop_id;
-    if (!groups[shopId]) {
-      groups[shopId] = [];
+    if (!shopGroups[shopId]) {
+      shopGroups[shopId] = [];
     }
-    groups[shopId].push(item);
-    return groups;
-  }, {} as Record<string, CartItem[]>);
+    shopGroups[shopId].push(item);
+  }
 
   // Calculate delivery fee per shop (one fee per shop regardless of items count)
   let totalDeliveryFees = 0;
-  Object.entries(shopGroups).forEach(([shopId, items]) => {
+  const shopIds = Object.keys(shopGroups);
+  for (let i = 0; i < shopIds.length; i++) {
+    const shopId = shopIds[i];
     // Get the delivery method for this shop
     const shopDeliveryMethod = deliveryMethods[shopId] || "standard";
     totalDeliveryFees += DELIVERY_FEES[shopDeliveryMethod];
-  });
+  }
 
   return { totalDeliveryFees, shopGroups };
 };

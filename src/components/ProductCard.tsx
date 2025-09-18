@@ -73,7 +73,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       <p
         style={{ fontWeight: "bold", fontSize: "1.1rem", margin: "0 0 8px 0" }}
       >
-        ${product.price.toFixed(2)}
+        {product.price.toFixed(2)} Baht
       </p>
       <p style={{ color: "#f5a623", margin: "0 0 8px 0" }}>
         ⭐ {product.review} / 5
