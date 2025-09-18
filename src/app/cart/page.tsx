@@ -6,8 +6,9 @@ import Link from "next/link";
 const CartPage = () => {
   const { cart, clearCart, updateQuantity } = useCart();
 
-  const grandTotal = cart.reduce((total, { product, quantity }) =>
-    total + (product.price * quantity), 0
+  const grandTotal = cart.reduce(
+    (total, { product, quantity }) => total + product.price * quantity,
+    0
   );
   return (
     <main style={{ padding: "32px" }}>
@@ -66,12 +67,21 @@ const CartPage = () => {
                     From Shop: <b>{product.shop_id}</b>
                   </p>
                   <p style={{ margin: "0 0 4px 0" }}>
-                    Price: ${product.price.toFixed(2)}
+                    Price: {product.price.toFixed(2)} Baht
                   </p>
-                  <div style={{ margin: "0 0 4px 0", display: "flex", alignItems: "center", gap: "8px" }}>
+                  <div
+                    style={{
+                      margin: "0 0 4px 0",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                    }}
+                  >
                     <span>Quantity:</span>
                     <button
-                      onClick={() => updateQuantity(product.product_id, quantity - 1)}
+                      onClick={() =>
+                        updateQuantity(product.product_id, quantity - 1)
+                      }
                       style={{
                         background: "#f0f0f0",
                         border: "1px solid #ccc",
@@ -81,16 +91,24 @@ const CartPage = () => {
                         cursor: "pointer",
                         display: "flex",
                         alignItems: "center",
-                        justifyContent: "center"
+                        justifyContent: "center",
                       }}
                     >
                       -
                     </button>
-                    <span style={{ fontWeight: "bold", minWidth: "20px", textAlign: "center" }}>
+                    <span
+                      style={{
+                        fontWeight: "bold",
+                        minWidth: "20px",
+                        textAlign: "center",
+                      }}
+                    >
                       {quantity}
                     </span>
                     <button
-                      onClick={() => updateQuantity(product.product_id, quantity + 1)}
+                      onClick={() =>
+                        updateQuantity(product.product_id, quantity + 1)
+                      }
                       style={{
                         background: "#f0f0f0",
                         border: "1px solid #ccc",
@@ -100,7 +118,7 @@ const CartPage = () => {
                         cursor: "pointer",
                         display: "flex",
                         alignItems: "center",
-                        justifyContent: "center"
+                        justifyContent: "center",
                       }}
                       disabled={quantity >= product.instock_Quantity}
                     >
@@ -117,30 +135,41 @@ const CartPage = () => {
                         cursor: "pointer",
                         fontSize: "12px",
                         fontWeight: "bold",
-                        marginLeft: "8px"
+                        marginLeft: "8px",
                       }}
                     >
                       Remove
                     </button>
                   </div>
                   <p style={{ margin: "0 0 4px 0" }}>
-                    Total: <b>${(product.price * quantity).toFixed(2)}</b>
+                    Total: <b>{(product.price * quantity).toFixed(2)} Baht</b>
                   </p>
                 </div>
               </div>
             </div>
           ))}
 
-          <div style={{
-            border: "2px solid #007bff",
-            borderRadius: "8px",
-            padding: "20px",
-            background: "#f8f9fa",
-            marginTop: "16px"
-          }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div
+            style={{
+              border: "2px solid #007bff",
+              borderRadius: "8px",
+              padding: "20px",
+              background: "#f8f9fa",
+              marginTop: "16px",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
               <h2 style={{ margin: "0", fontSize: "1.5rem" }}>
-                Grand Total: <span style={{ color: "#007bff" }}>${grandTotal.toFixed(2)}</span>
+                Grand Total:{" "}
+                <span style={{ color: "#007bff" }}>
+                  {grandTotal.toFixed(2)} Baht
+                </span>
               </h2>
               <Link
                 href="/checkout"
