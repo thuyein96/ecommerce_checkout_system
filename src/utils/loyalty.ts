@@ -7,11 +7,10 @@ export const bahtToPoints = (baht: number) => baht * 10;
 export const normalizePointsToRedeem = (
     requestedPoints: number,
     balancePoints: number,
-    capBaht: number // maximum baht discount allowed by the payable amount
+    capBaht: number
 ) => {
-    const maxByBalance = Math.max(0, balancePoints);     // can’t exceed your balance
-    const maxByAmountPts = bahtToPoints(Math.max(0, Math.floor(capBaht))); // convert allowed baht to points (e.g., ฿37 → 370 pts)
-    // clamp then snap to multiple of 10 (clean baht)
+    const maxByBalance = Math.max(0, balancePoints);
+    const maxByAmountPts = bahtToPoints(Math.max(0, Math.floor(capBaht)));
     const clamped = Math.max(0, Math.min(requestedPoints, maxByBalance, maxByAmountPts));
     return clamped - (clamped % 10);
 };
