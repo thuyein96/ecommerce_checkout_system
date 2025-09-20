@@ -1,88 +1,49 @@
 "use client";
 
-import orders from "@/data/orders.json";
-import order_items from "@/data/order_items.json";
-import promotion_codes from "@/data/promotion_codes.json";
-import products from "@/data/products.json";
-import customers from "@/data/customers.json";
-import { Promotion_code_type } from "@/utils/enum/promotion_code_type";
-import { amountFromName, currency, DELIVERY_FEES } from "@/utils/helpers";
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { PaymentSuccessModal } from "@/components/PaymentSuccessModal";
+import { currency } from "@/utils/helpers";
+import { DeliveryType } from "@/utils/enum/delivery_types";
+import { useOrder } from "@/context/OrderContext";
 
 const OrderSummaryPage: React.FC = () => {
-  const [orderId, setOrderId] = useState<string>(orders[0].Order_id);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState<boolean>(false);
-  
-  // Get order details
-  const order = useMemo(() => 
-    orders.find(o => o.Order_id === orderId) || orders[0], 
-    [orderId]
-  );
-  
-  // Get customer details
-  const customer = useMemo(() => 
-    customers.find(c => c.Cus_id === order.Cus_id) || customers[0], 
-    [order.Cus_id]
-  );
-  
-  // Get order items
-  const orderItems = useMemo(() => 
-    order_items.filter(item => item.Order_id === orderId), 
-    [orderId]
-  );
-  
-  // Get applied promotion code
-  const appliedPromotion = useMemo(() => 
-    order.coupon ? promotion_codes.find(promo => promo.Name === order.coupon) : null, 
-    [order.coupon]
-  );
+  const { currentOrder: orderData, clearCurrentOrder } = useOrder();
 
-  // Calculate subtotal
-  const subtotal = useMemo(() => 
-    orderItems.reduce((sum, item) => sum + item.SubTotal, 0), 
-    [orderItems]
-  );
+  // If no order data, redirect to checkout
+  if (!orderData) {
+    return (
+      <div className="mx-auto max-w-2xl bg-white text-gray-900 min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold mb-4">No Order Found</h2>
+          <p className="text-gray-600 mb-6">Please complete your checkout first.</p>
+          <Link
+            href="/checkout"
+            className="bg-blue-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+          >
+            Go to Checkout
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
-  // Calculate delivery fees
-  const totalDeliveryFees = useMemo(() => {
-    return orderItems.reduce((sum, item) => {
-      const fee = DELIVERY_FEES[item.Delivery_fee_type as keyof typeof DELIVERY_FEES] ?? 0;
-      return sum + fee;
-    }, 0);
-  }, [orderItems]);
-
-  // Calculate discount amount
-  const discountAmount = useMemo(() => {
-    if (!appliedPromotion) return 0;
-    
-    if (appliedPromotion.Promotion_code_type === Promotion_code_type.Percentage) {
-      const pct = amountFromName(appliedPromotion.Name) / 100;
-      return subtotal * pct;
-    }
-    if (appliedPromotion.Promotion_code_type === Promotion_code_type.Fixed) {
-      return amountFromName(appliedPromotion.Name);
-    }
-    return 0;
-  }, [appliedPromotion, subtotal]);
-
-  // Calculate effective delivery (after free delivery promotion)
-  const effectiveDelivery = useMemo(() => {
-    if (appliedPromotion?.Promotion_code_type === Promotion_code_type.Free_delivery) return 0;
-    return totalDeliveryFees;
-  }, [appliedPromotion, totalDeliveryFees]);
-
-  // Calculate loyalty points used
-  const loyaltyPointsUsed = order.loyalty_points || 0;
-
-  // Calculate final total
-  const finalTotal = useMemo(() => {
-    const total = subtotal + effectiveDelivery - discountAmount - loyaltyPointsUsed;
-    return Math.max(0, Number(total.toFixed(2)));
-  }, [subtotal, effectiveDelivery, discountAmount, loyaltyPointsUsed]);
-
-  return (
+  const {
+    orderId,
+    customer,
+    shopGroups, // Use pre-grouped data instead of cart
+    deliveryMethods,
+    appliedCoupon,
+    subtotal,
+    effectiveDelivery,
+    discountAmount,
+    pointsUsed,
+    pointsDiscountBaht,
+    finalTotal,
+    pointsEarned,
+    orderDate
+  } = orderData; return (
     <div className="mx-auto max-w-2xl bg-white text-gray-900 min-h-screen">
       {/* Header */}
       <div className="sticky top-0 z-10 flex items-center gap-3 border-b bg-white/90 px-4 py-3 backdrop-blur">
@@ -99,7 +60,7 @@ const OrderSummaryPage: React.FC = () => {
           <div className="bg-gray-50 rounded-lg p-3 space-y-2">
             <div className="flex justify-between">
               <span className="text-sm text-gray-600">Order ID:</span>
-              <span className="text-sm font-medium">{order.Order_id}</span>
+              <span className="text-sm font-medium">{orderId}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-sm text-gray-600">Customer:</span>
@@ -109,41 +70,63 @@ const OrderSummaryPage: React.FC = () => {
               <span className="text-sm text-gray-600">Delivery Address:</span>
               <span className="text-sm font-medium text-right">{customer.Address}</span>
             </div>
-            {order.coupon && (
+            <div className="flex justify-between">
+              <span className="text-sm text-gray-600">Order Date:</span>
+              <span className="text-sm font-medium">
+                {new Date(orderDate).toLocaleDateString()}
+              </span>
+            </div>
+            {appliedCoupon && (
               <div className="flex justify-between">
                 <span className="text-sm text-gray-600">Promo Code:</span>
-                <span className="text-sm font-medium text-green-600">{order.coupon}</span>
+                <span className="text-sm font-medium text-green-600">{appliedCoupon.Name}</span>
               </div>
             )}
           </div>
         </div>
       </div>
 
-      {/* Order Items */}
+      {/* Order Items by Shop */}
       <div className="px-4 py-4 border-b">
         <h3 className="text-lg font-semibold mb-3">Items Ordered</h3>
-        <div className="space-y-3">
-          {orderItems.map((item) => {
-            const product = products.find(p => p.product_id === item.Product_id);
-            return (
-              <div key={item.OrderItem_id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                <div className="h-16 w-16 flex-shrink-0 rounded-lg bg-gray-200 flex items-center justify-center">
-                  <span className="text-xs text-gray-500">IMG</span>
-                </div>
-                <div className="flex-1">
-                  <h4 className="text-sm font-medium text-gray-900">
-                    {product?.product_name || "Unknown Product"}
-                  </h4>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Quantity: {item.Quantity} • Delivery: {item.Delivery_fee_type}
-                  </p>
-                  <p className="text-sm font-semibold text-teal-600 mt-1">
-                    {currency(item.SubTotal)}
-                  </p>
-                </div>
+        <div className="space-y-4">
+          {Object.entries(shopGroups).map(([shopId, items]) => (
+            <div key={shopId} className="border rounded-lg p-3 bg-gray-50">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="font-semibold text-gray-800">
+                  🏪 Shop {shopId}
+                </h4>
+                <span className="text-sm text-gray-600 bg-white px-2 py-1 rounded">
+                  {deliveryMethods[shopId] === DeliveryType.STANDARD ? 'Standard' : 'Priority'} Delivery
+                </span>
               </div>
-            );
-          })}
+              <div className="space-y-3">
+                {items.map((item) => (
+                  <div key={item.product.product_id} className="flex items-center gap-3 p-3 bg-white rounded-lg">
+                    <img
+                      src={item.product.image}
+                      alt={item.product.product_name}
+                      className="h-16 w-16 flex-shrink-0 rounded-lg object-cover"
+                    />
+                    <div className="flex-1">
+                      <h4 className="text-sm font-medium text-gray-900">
+                        {item.product.product_name}
+                      </h4>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {item.product.product_category}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {currency(item.product.price)} × {item.quantity}
+                      </p>
+                      <p className="text-sm font-semibold text-teal-600 mt-1">
+                        {currency(item.product.price * item.quantity)}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -152,10 +135,12 @@ const OrderSummaryPage: React.FC = () => {
         <h3 className="text-lg font-semibold mb-3">Price Breakdown</h3>
         <div className="space-y-3">
           <div className="flex justify-between items-center">
-            <span className="text-gray-600">Subtotal ({orderItems.length} items)</span>
+            <span className="text-gray-600">
+              Subtotal ({Object.values(shopGroups).flat().length} items)
+            </span>
             <span className="font-medium">{currency(subtotal)}</span>
           </div>
-          
+
           <div className="flex justify-between items-center">
             <span className="text-gray-600">Delivery Fee</span>
             <span className="font-medium">
@@ -170,7 +155,7 @@ const OrderSummaryPage: React.FC = () => {
           {discountAmount > 0 && (
             <div className="flex justify-between items-center">
               <span className="text-gray-600">
-                Discount ({appliedPromotion?.Name})
+                Discount ({appliedCoupon?.Name})
               </span>
               <span className="font-medium text-green-600">
                 -{currency(discountAmount)}
@@ -178,17 +163,17 @@ const OrderSummaryPage: React.FC = () => {
             </div>
           )}
 
-          {loyaltyPointsUsed > 0 && (
+          {pointsUsed > 0 && (
             <div className="flex justify-between items-center">
-              <span className="text-gray-600">Loyalty Points Used</span>
+              <span className="text-gray-600">Loyalty Points Used ({pointsUsed} pts)</span>
               <span className="font-medium text-green-600">
-                -{currency(loyaltyPointsUsed)}
+                -{currency(pointsDiscountBaht)}
               </span>
             </div>
           )}
 
           <hr className="my-3" />
-          
+
           <div className="flex justify-between items-center text-lg font-bold">
             <span>Total Amount</span>
             <span className="text-teal-600">{currency(finalTotal)}</span>
@@ -197,19 +182,19 @@ const OrderSummaryPage: React.FC = () => {
       </div>
 
       {/* Promotion Details */}
-      {appliedPromotion && (
+      {appliedCoupon && (
         <div className="px-4 py-4 border-b">
           <h3 className="text-lg font-semibold mb-3">Applied Promotion</h3>
           <div className="bg-green-50 border border-green-200 rounded-lg p-3">
             <div className="flex items-center gap-2 mb-2">
               <span className="text-green-600">✓</span>
-              <span className="font-medium text-green-800">{appliedPromotion.Name}</span>
+              <span className="font-medium text-green-800">{appliedCoupon.Name}</span>
             </div>
             <p className="text-sm text-green-700">
-              Type: {appliedPromotion.Promotion_code_type.replace('_', ' ')}
+              Type: {appliedCoupon.Promotion_code_type.replace('_', ' ')}
             </p>
             <p className="text-xs text-green-600 mt-1">
-              Valid: {appliedPromotion.Start_date} to {appliedPromotion.End_date}
+              Valid: {appliedCoupon.Start_date} to {appliedCoupon.End_date}
             </p>
           </div>
         </div>
@@ -220,16 +205,12 @@ const OrderSummaryPage: React.FC = () => {
         <h3 className="text-lg font-semibold mb-3">Loyalty Information</h3>
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
           <div className="flex justify-between items-center mb-2">
-            <span className="text-blue-700">Available Loyalty Points:</span>
-            <span className="font-medium text-blue-800">{customer.Loyal_points} coins</span>
+            <span className="text-blue-700">Points Used in This Order:</span>
+            <span className="font-medium text-blue-800">{pointsUsed} coins</span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-blue-700">Points Used in This Order:</span>
-            <span className="font-medium text-blue-800">{loyaltyPointsUsed} coins</span>
-          </div>
-          <div className="flex justify-between items-center mt-2">
-            <span className="text-blue-700">Remaining Points:</span>
-            <span className="font-medium text-blue-800">{customer.Loyal_points - loyaltyPointsUsed} coins</span>
+            <span className="text-blue-700">Points You&apos;ll Earn:</span>
+            <span className="font-medium text-blue-800">{pointsEarned} coins</span>
           </div>
         </div>
       </div>
@@ -237,19 +218,19 @@ const OrderSummaryPage: React.FC = () => {
       {/* Action Buttons */}
       <div className="px-4 py-6">
         <div className="space-y-3">
-          <button 
+          <button
             onClick={() => setIsPaymentModalOpen(true)}
             className="w-full bg-green-600 text-white py-3 px-4 rounded-lg font-medium text-center hover:bg-green-700 transition-colors"
           >
             Proceed to Payment - {currency(finalTotal)}
           </button>
-          <Link 
+          <Link
             href="/checkout"
             className="w-full bg-teal-600 text-white py-3 px-4 rounded-lg font-medium text-center block hover:bg-teal-700 transition-colors"
           >
             Back to Checkout
           </Link>
-          <button 
+          <button
             onClick={() => window.print()}
             className="w-full bg-gray-100 text-gray-700 py-3 px-4 rounded-lg font-medium hover:bg-gray-200 transition-colors"
           >
@@ -261,9 +242,13 @@ const OrderSummaryPage: React.FC = () => {
       {/* Payment Success Modal */}
       <PaymentSuccessModal
         isOpen={isPaymentModalOpen}
-        onClose={() => setIsPaymentModalOpen(false)}
+        onClose={() => {
+          setIsPaymentModalOpen(false);
+          // Clear order data after payment using OrderContext
+          clearCurrentOrder();
+        }}
         orderTotal={currency(finalTotal)}
-        orderId={order.Order_id}
+        orderId={orderId}
       />
     </div>
   );
