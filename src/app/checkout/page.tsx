@@ -10,16 +10,16 @@ import { calculateDeliveryFees, calculateSubtotal, computeFinalPrice } from "@/u
 import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
 import { useCart } from "../../context/CartContext";
 import { useOrder } from "../../context/OrderContext";
 import {
   computeDiscountForCoupon,
   computeEffectiveDelivery,
-  finalizeCheckout, getActiveCouponsForCustomer,
   logCouponUsage,
   validatePromotionForCart,
 } from "../services/checkout.service";
+import { isCouponActive, normalizePointsToRedeem, persistUpdatedCustomer, pointsEarnedFrom, pointsToBaht } from "@/utils/loyalty";
+import { DeliveryType } from "@/utils/enum/delivery_types";
 
 const CheckoutPage: React.FC = () => {
   const [customer] = useState(customers[0] as Customer);
@@ -44,6 +44,10 @@ const CheckoutPage: React.FC = () => {
   const promotionCodes = useMemo(
     () => promotion_codes as PromotionCode[],
     []
+  );
+  const activeCoupons = useMemo(
+    () => promotionCodes.filter((p) => isCouponActive(p)),
+    [promotionCodes]
   );
   console.log("Available promotion codes:", promotionCodes);
   // Delivery method state for each shop
@@ -96,9 +100,9 @@ const CheckoutPage: React.FC = () => {
 
   // final total
   const calculatedFinalPrice = useMemo(() => {
-    const finalPrice = computeFinalPrice(subtotal, discountAmount, coinsToApply, effectiveDelivery);
+    const finalPrice = computeFinalPrice(subtotal, discountAmount, pointsDiscountBaht, effectiveDelivery);
     return finalPrice;
-  }, [subtotal, effectiveDelivery, discountAmount, coinsToApply]);
+  }, [subtotal, effectiveDelivery, discountAmount, pointsDiscountBaht]);
 
   // handlers update minimal state only
   function handleApplyCoupon(code: PromotionCode | null) {
@@ -396,22 +400,21 @@ const CheckoutPage: React.FC = () => {
       </div> */}
       <button
         onClick={() => {
-          const result = finalizeCheckout({
-            customer,
-            appliedCoupon,
-            subtotal,
-            effectiveDelivery,
-            discountAmount,
-            requestedPoints: coinAmount, // points
-          });
+          // Derive final and loyalty updates without external finalize function
+          const finalTotal = calculatedFinalPrice;
+          const pointsEarned = pointsEarnedFrom(finalTotal);
+          const updatedCustomer = {
+            ...customer,
+            Loyal_points: Math.max(0, (customer.Loyal_points ?? 0) - normalizedPoints + pointsEarned),
+          } as Customer;
 
           // persist for profile page to reflect immediately
-          persistUpdatedCustomer(result.updatedCustomer);
+          persistUpdatedCustomer(updatedCustomer);
 
           // Store order data for order summary page using OrderContext
           const orderData = {
             orderId: `ORD-${Date.now()}`, // Generate a unique order ID
-            customer,
+            customer: updatedCustomer,
             shopGroups: groupedByShop, // Use pre-grouped data instead of raw cart
             deliveryMethods,
             appliedCoupon,
@@ -422,7 +425,7 @@ const CheckoutPage: React.FC = () => {
             pointsUsed: normalizedPoints,
             pointsDiscountBaht,
             finalTotal,
-            pointsEarned: pointsEarnedPreview,
+            pointsEarned,
             orderDate: new Date().toISOString(),
           };
 
