@@ -1,4 +1,5 @@
-import { PromotionCode } from "@/models";
+import promotion_codes from "@/data/promotion_codes.json";
+import { Customer, PromotionCode } from "@/models";
 import { Promotion_code_type } from "@/utils/enum/promotion_code_type";
 import { extractAmountFromCode } from "@/utils/helpers";
 import { isNotEligibleForCategory, isNotEligibleForProduct, isExceededGlobalLimit, isExceededUserLimit, isFormatIncorrect, isNotExist } from "./checkout.helper";
